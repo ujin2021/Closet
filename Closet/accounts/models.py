@@ -1,6 +1,6 @@
 from django.db import models
 
-class Social_Login(models.Model):
+class Social_Login(models.Model): # 이거 없애고 account로 합치기
     platform = models.CharField(max_length=50) # kakao or google
     uid = models.CharField(max_length=50) # 고유 id
 

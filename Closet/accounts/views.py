@@ -163,6 +163,8 @@ class Activate(View):
 def email_verify(request):
     return render(request, 'accounts/verify.html')
 
+# from machinelearning pc 
+# top+bottom+outer => category 로 변경하기
 class ClothesInfo(ListView):
     def get(self, request):
         queryset = Clothes_category.objects.all()
