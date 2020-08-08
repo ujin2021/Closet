@@ -170,25 +170,41 @@ class ClothesInfo(ListView):
     def post(self,request):
         # data = json.loads(request.body) # insomnia
         print("request user id: ", request.user.id)
-        image = request.FILES.get('image') # app과 맞추기
-        nowDate = now.strftime('%Y/%m/%d') # media dir path
-        print('image name from app: ', image)
-
+        
         classify = request.POST.get('classify', '')
         class_arr = classify.split('_')
+
         color = class_arr[0]
         pattern = class_arr[1]
         category = class_arr[2] # top, bottom, outer
-        form = Clothes_category(image=image, color=color, pattern=pattern, category=category)
-        form.save() # clothes_category db에 image저장
-        print("save complete")
 
-        image_path = nowDate+'/'+str(image)
-        print("new image:", image_path)
+        if(len(class_arr) == 3): # 새로 등록
+            image = request.FILES.get('image') # app과 맞추기
+            nowDate = now.strftime('%Y/%m/%d') # media dir path
+            image_path = nowDate+'/'+str(image)
+            print('image name from app: ', image, 'image path: ', )
+            
+            form = Clothes_category(image=image, color=color, pattern=pattern, category=category)
+            form.save() # clothes_category db에 image저장
+            print("save complete")
         
-        clothes = Clothes_category.objects.get(image=image_path) # 해당 옷의 row 가져오기
-        print("clothes row id : ", clothes.id)
-        closet_form = User_Closet(user_id=request.user.id, clothes_id=clothes.id) # foreignkey 로(user, clothes의 pk) 저장
-        closet_form.save()
+            clothes = Clothes_category.objects.get(image=image_path) # 해당 옷의 row 가져오기
+            print("clothes row id : ", clothes.id)
+            closet_form = User_Closet(user_id=request.user.id, clothes_id=clothes.id) # foreignkey 로(user, clothes의 pk) 저장
+            closet_form.save()
 
-        return JsonResponse({'code':201, 'msg': 'image ok'}, status=200)
+            return JsonResponse({'code':201, 'msg': 'save ok'}, status=200)
+
+        if(len(class_arr) == 4):
+            clothe = Clothes_category.objects.get(color=color, pattern=pattern, category=category)
+            print('clothe id : ', clothe.id)
+            status = class_arr[3]
+            if(status == 'IN'):
+                clothe.status = True
+            else:
+                clothe.status = False
+            clothe.save()
+
+            return JsonResponse({'code':201, 'msg': 'status update ok'}, status=200)
+
+        

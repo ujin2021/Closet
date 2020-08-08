@@ -29,6 +29,7 @@ class Clothes_category(models.Model):
     color = models.CharField(max_length=15, default='none')
     pattern = models.CharField(max_length=20, default='none')
     category = models.CharField(max_length=10, default='none')
+    status = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'clothes_category'
