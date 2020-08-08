@@ -6,6 +6,8 @@ from django.http import JsonResponse
 
 def social_login(platform, uid, email):
     platform, uid, email = platform, uid, email
+	if(len(platform) == 0 or len(uid) == 0 or len(email) == 0):
+		return False
     print('platform : ',  str(platform), 'email:', email, 'uid : ', uid)
     username = email.split('@')[0]
 

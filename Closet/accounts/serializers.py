@@ -3,7 +3,7 @@ from .models import *
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['email', 'password', 'username']
+        fields = ['email', 'password', 'username', 'platform', 'is_active']
 
 class ClothesInfoSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
