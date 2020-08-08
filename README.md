@@ -95,5 +95,17 @@ https://yuddomack.tistory.com/entry/%EC%B2%98%EC%9D%8C%EB%B6%80%ED%84%B0-%EC%8B%
 ✔️ local에 raspberry pi 모델, 등등 추가 - 아직 ubuntu에 pull 하면 안됨 <br>
 ✔️ raspberry pi로 로그인시 토큰 전송하는 코드는 짜놓음. 테스트는 아직 <br>
 앞으로 남은일 <br>
-* 거주지 입력받은것 저장(db추가) 
+~~* 거주지 입력받은것 저장(db추가) ~~
+> 경도위도 차이가얼마안나서 우리나라는 그냥 서울기준으로 날씨제공
 * 추천 및 많이 입은 빈도수 어떻게 처리할지...
+
+##### 8/8
+✔️ clothes_category db (top+bottom+outer) => category 로 합쳤음 <br>
+✔️ social_login db 없애고 account로 통합관리(platform 0:normal, 1:kakao, 2:google / uid를 password에 , email은 소셜+기본 같음) <br>
+✔️ 이메일인증 처리메일 완료(꾸미는건 나중에) - 링크 잘 작동되고, 이메일 인증완료 redirect(my_setting에서 192.~~~~ 주소로 해놨었다..)도 잘됨 <br>
+✔️ image파일 받기 완료(from 머신러닝에서 post로) <br>
+✔️ 수정한 db에 따른 views, serializes 코드도 변경 <br>
+앞으로 남은일 <br>
+* 추천관련(빈도수 체크, 추천옷세트 db저장)
+* 라즈베리파이 테이블에 user id를 fk로 저장할지 user table에 rasp id를 저장할지(이렇게 하면 user table에 처음에 rasp 이 null이 됨. -> 이건 무조건 null 이 되면 안되는거)
+* 라즈베리파이로 토큰 잘 보내지는지 체크(using socket)
