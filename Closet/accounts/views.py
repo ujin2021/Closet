@@ -116,7 +116,7 @@ def kakao_login(request, format=None): # 앱연동 테스트 해보기, get 넣�
         email = request.POST.get('email', '')
         result = social_login(platform=platform, uid=uid, email=email) # social_login 파일에서 처리
         if(result == False):
-            return JsonResponse({'code':503, 'msg':'login fail', 'token':''}, status=503) # 소셜로그인 실패(정보가 안넘어왔을 경우)
+            return JsonResponse({'code':503, 'msg':'login fail', 'token':''}, status=201) # 소셜로그인 실패(정보가 안넘어왔을 경우)
         print("token : ", result['token'])
         # rasp_socket = sendToken(result['id'], result['token'])
         # print(rasp_socket)
@@ -129,7 +129,7 @@ def google_login(request, format=None): # 앱연동 테스트 해보기, get 넣
         email = request.POST.get('email', '')
         result = social_login(platform=platform, uid=uid, email=email)
         if(result == False):
-            return JsonResponse({'code':503, 'msg':'login fail', 'token':'token fail'}, status=503) # 소셜로그인 실패(정보가 안넘어왔을 경우)
+            return JsonResponse({'code':503, 'msg':'login fail', 'token':'token fail'}, status=201) # 소셜로그인 실패(정보가 안넘어왔을 경우)
         # rasp_socket = sendToken(result['id'], result['token'])
         # print(rasp_socket)
         return JsonResponse({'code':201, 'msg':'login success', 'token':result['token']}, status=201) # 소셜로그인 성공

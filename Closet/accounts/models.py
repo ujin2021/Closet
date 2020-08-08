@@ -5,7 +5,7 @@ class Account(models.Model):
     email = models.EmailField(max_length=100, unique=True) # email 겸 id
     password = models.CharField(max_length=200, null=True) # social login 시 uid
     username = models.CharField(max_length=100) # social login 시 @ 앞부분
-    platform = models.IntegerField(default=1) # normal : 0, kakao : 1, google : 2
+    platform = models.IntegerField(default=0) # normal : 0, kakao : 1, google : 2
     is_active = models.BooleanField(default=False) # social login 시 무조건 1
     
     def __str__(self):
@@ -14,7 +14,7 @@ class Account(models.Model):
         db_table = 'account'
 
 class RaspberryPi(models.Model):
-    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+	# user = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, blank=True)
     ip = models.CharField(max_length=50, unique=True)
     port = models.CharField(max_length=10)
     rasp_id = models.CharField(max_length=50)
