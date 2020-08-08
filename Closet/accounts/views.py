@@ -8,7 +8,7 @@ from .token import account_activation_token
 from .text import message
 from .tokenCheck import *
 from .social_login import *
-from .sendToken import *
+from .rasp_sendToken import *
 
 from django.views import View
 from django.views.generic import ListView
