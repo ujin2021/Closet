@@ -29,7 +29,7 @@ class Clothes_category(models.Model):
     image = models.ImageField(upload_to="%Y/%m/%d", default=False, max_length=255)
     color = models.CharField(max_length=15)
     pattern = models.CharField(max_length=20)
-	category = models.CharField(max_length=10)
+    category = models.CharField(max_length=10)
 
     class Meta:
         db_table = 'clothes_category'

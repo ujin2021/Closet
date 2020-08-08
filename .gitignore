@@ -11,7 +11,7 @@ db.sqlite3
 db.sqlite3-journal
 media
 my_settings.py
-migrations/
+migrations/*
 /.media
 /.static
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
@@ -158,5 +158,7 @@ dmypy.json
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
+
+
 
 # End of https://www.toptal.com/developers/gitignore/api/django,visualstudiocode
