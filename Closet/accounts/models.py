@@ -15,7 +15,7 @@ class Account(models.Model):
 
 # closet raspberry pi info
 class RaspberryPi(models.Model):
-	user = models.ForeignKey(Account, on_delete=models.CASCADE, default=0)
+    user = models.ForeignKey(Account, on_delete=models.CASCADE, default=0)
     ip = models.CharField(max_length=50, unique=True)
     port = models.CharField(max_length=10)
     rasp_id = models.CharField(max_length=50)
