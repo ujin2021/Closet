@@ -1,11 +1,13 @@
 from django.db import models
 
+'''
 class Social_Login(models.Model): # 이거 없애고 account로 합치기
     platform = models.CharField(max_length=50) # kakao or google
     uid = models.CharField(max_length=50) # 고유 id
 
     class Meta:
         db_table = 'social_login'
+'''
 
 # closet raspberry pi info
 class RaspberryPi(models.Model):
@@ -20,10 +22,11 @@ class RaspberryPi(models.Model):
 # app user info
 class Account(models.Model):
     email = models.EmailField(max_length=100, unique=True) # email 겸 id
-    password = models.CharField(max_length=200, null=True, blank=True) # social login시 null
-    username = models.CharField(max_length=100)
-    social = models.ForeignKey(Social_Login,on_delete=models.CASCADE, null=True, blank=True) # social_login db의 id
-    is_active = models.BooleanField(default=False)
+    password = models.CharField(max_length=200, null=True, blank=True) # social login시 uid
+    username = models.CharField(max_length=100) # social login 시 @ 앞부분
+    platform = models.IntegerField(default=0) # normal : 0, kakao : 1, google : 2
+    #social = models.ForeignKey(Social_Login,on_delete=models.CASCADE, null=True, blank=True) # social_login db의 id
+    is_active = models.BooleanField(default=False) # social login 시 무조건 1
     #raspberry = models.ForeignKey(RaspberryPi, on_delete=models.CASCADE, default=True)
     
     def __str__(self):
@@ -38,7 +41,7 @@ class Clothes_category(models.Model):
     top = models.CharField(max_length=50, blank=True, null=True)
     bottom = models.CharField(max_length=50, blank=True, null=True)
     outer = models.CharField(max_length=50, blank=True, null=True)
-    pattern = models.CharField(max_length=50, blank=True, null=True)
+    #pattern = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
         db_table = 'clothes_category'

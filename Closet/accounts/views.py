@@ -56,7 +56,8 @@ def signup(request, format=None):
                     email = email,
                     password=password,
                     username=username,
-                    is_active=False
+                    is_active=False,
+                    platform=0
                 )
 
                 current_site = get_current_site(request)
@@ -106,16 +107,11 @@ def login(request, format=None):
         return JsonResponse({'code':2, 'msg':'not my user'}, status=201) # 해당 email이 db에 없음
 
 def kakao_login(request, format=None): # 앱연동 테스트 해보기, get 넣어주기
-    if request.method == "GET":
-        queryset = Social_Login.objects.filter(platform='kakao')
-        serializer = SocialLoginSerializer(queryset, many=True)
-        return JsonResponse(serializer.data, safe=False)
-
     if request.method == "POST":
         # data = json.loads(request.body) # insomnia
         # uid = data['uid']
         # email = data['email']
-        platform = 'kakao'
+        platform = 1
         uid = request.POST.get('uid', '')
         email = request.POST.get('email', '')
         result = social_login(platform=platform, uid=uid, email=email) # social_login 파일에서 처리
@@ -125,13 +121,8 @@ def kakao_login(request, format=None): # 앱연동 테스트 해보기, get 넣�
         return JsonResponse({'code':201, 'msg':'login success', 'token':result['token']}, status=201) # 소셜로그인 성공
 
 def google_login(request, format=None): # 앱연동 테스트 해보기, get 넣어주기
-    if request.method == "GET":
-        queryset = Social_Login.objects.filter(platform='google')
-        serializer = SocialLoginSerializer(queryset, many=True)
-        return JsonResponse(serializer.data, safe=False)
-
     if request.method == "POST":
-        platform = 'google'
+        platform = 2
         uid = request.POST.get('uid', '')
         email = request.POST.get('email', '')
         social_login(platform=platform, uid=uid, email=email)
