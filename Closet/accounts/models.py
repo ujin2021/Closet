@@ -1,15 +1,5 @@
 from django.db import models
 
-# closet raspberry pi info
-class RaspberryPi(models.Model):
-    ip = models.CharField(max_length=50, unique=True)
-    port = models.CharField(max_length=10)
-    rasp_id = models.CharField(max_length=50)
-    rasp_password = models.CharField(max_length=50)
-
-    class Meta:
-        db_table = 'raspberry_pi'
-
 # app user info
 class Account(models.Model):
     email = models.EmailField(max_length=100, unique=True) # email 겸 id
@@ -17,12 +7,22 @@ class Account(models.Model):
     username = models.CharField(max_length=100) # social login 시 @ 앞부분
     platform = models.IntegerField(default=0) # normal : 0, kakao : 1, google : 2
     is_active = models.BooleanField(default=False) # social login 시 무조건 1
-    #raspberry = models.ForeignKey(RaspberryPi, on_delete=models.CASCADE, default=True)
     
     def __str__(self):
         return self.username
     class Meta:
         db_table = 'account'
+
+# closet raspberry pi info
+class RaspberryPi(models.Model):
+    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    ip = models.CharField(max_length=50, unique=True)
+    port = models.CharField(max_length=10)
+    rasp_id = models.CharField(max_length=50)
+    rasp_password = models.CharField(max_length=50)
+
+    class Meta:
+        db_table = 'raspberry_pi'
 
 # user가 등록하는 옷들
 class Clothes_category(models.Model):
