@@ -5,16 +5,9 @@ class AccountSerializer(serializers.ModelSerializer):
         model = Account
         fields = ['email', 'password', 'username']
 
-'''
-class SocialLoginSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Social_Login
-        fields = ['platform', 'uid']
-'''
-
 class ClothesInfoSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
 
     class Meta:
         model = Clothes_category
-        fields = ['image', 'color', 'top', 'bottom', 'outer']
+        fields = ['image', 'color', 'category', 'pattern']

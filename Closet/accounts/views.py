@@ -169,12 +169,13 @@ class ClothesInfo(ListView):
         image = request.FILES.get('image') # app과 맞추기
         nowDate = now.strftime('%Y/%m/%d') # media dir path
         print('image name from app: ', image)
-        top = request.POST.get('top','') # long or short
-        bottom = request.POST.get('bottom', '') # long_pants or short_pants or long_skirt or short_skirt
-        outer = request.POST.get('outer', '') # coat or bubble_jacket or cardigan
-        color = request.POST.get('color', '')
-        pattern = request.POST.get('pattern', '')
-        form = Clothes_category(image=image, top=top, bottom=bottom, outer=outer, color=color, pattern=pattern)
+
+        classify = request.POST.get('classify', '')
+        class_arr = classify.split('_')
+        color = class_arr[0]
+        pattern = class_arr[1]
+        category = class_arr[2] # top, bottom, outer
+        form = Clothes_category(image=image, color=color, pattern=pattern, category=category)
         form.save() # clothes_category db에 image저장
         print("save complete")
 
