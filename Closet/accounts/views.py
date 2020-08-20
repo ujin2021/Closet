@@ -206,5 +206,3 @@ class ClothesInfo(ListView):
             clothe.save()
 
             return JsonResponse({'code':201, 'msg': 'status update ok'}, status=200)
-
-        
