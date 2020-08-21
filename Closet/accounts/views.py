@@ -169,9 +169,11 @@ class ClothesInfo(ListView):
     @LoginConfirm
     def post(self,request):
         # data = json.loads(request.body) # insomnia
-        print("request user id: ", request.user.id)
+        user_id = request.user.id
+        print("request user id: ", user_id)
         
         classify = request.POST.get('classify', '')
+        print('classify : ', classify)
         class_arr = classify.split('_')
 
         color = class_arr[0]
@@ -182,7 +184,7 @@ class ClothesInfo(ListView):
             image = request.FILES.get('image') # app과 맞추기
             nowDate = now.strftime('%Y/%m/%d') # media dir path
             image_path = nowDate+'/'+str(image)
-            print('image name from app: ', image, 'image path: ', )
+            print('image name from app: ', image, 'image path: ', image_path)
             
             form = Clothes_category(image=image, color=color, pattern=pattern, category=category)
             form.save() # clothes_category db에 image저장
@@ -196,13 +198,29 @@ class ClothesInfo(ListView):
             return JsonResponse({'code':201, 'msg': 'save ok'}, status=200)
 
         if(len(class_arr) == 4):
-            clothe = Clothes_category.objects.get(color=color, pattern=pattern, category=category)
-            print('clothe id : ', clothe.id)
+            print('IN/OUT CHECK')
+            clothes = Clothes_category.objects.filter(color=color, pattern=pattern, category=category)
+            print('clothes id : ', clothes, ' leng : ', len(clothes))
+            clothes_list = list(map(lambda x : x.id, clothes)) # clothes_category 에서 분류와 일치하는 옷의 id list
+            print(clothes_list)
+            
+            for i in clothes_list:
+                result = User_Closet.objects.filter(clothes_id=i, user_id=user_id)
+                if(len(result) > 0):
+                    print('result[0] : ', result[0])
+                    break
+
+            print('result id: ', result[0].id) # user_closet 의 id
+            print('clothes id : ', result[0].clothes_id)
             status = class_arr[3]
+            print('status : ', status)
+            
+            clothes = Clothes_category.objects.get(id = result[0].clothes_id)
+
             if(status == 'IN'):
-                clothe.status = True
+                clothes.status = True
             else:
-                clothe.status = False
-            clothe.save()
+                clothes.status = False
+            clothes.save()
 
             return JsonResponse({'code':201, 'msg': 'status update ok'}, status=200)
