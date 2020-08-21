@@ -38,10 +38,12 @@ class Clothes_category(models.Model):
 class User_Closet(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
     clothes = models.ForeignKey(Clothes_category, on_delete=models.CASCADE)
+    frequency = models.IntegerField(default=0)
+
     class Meta:
         db_table = 'user_closet'
 
-'''
+
 # 머신러닝에서 추천해준 리스트들(이것들은 다시 추천해주면 안됨)
 class Recommendation(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
@@ -50,6 +52,7 @@ class Recommendation(models.Model):
     outer = models.ForeignKey(Clothes_category, related_name='rec_outer',on_delete=models.CASCADE)
     class Meta:
         db_table = 'recommendation'
+
 # 추천리스트 중 사용자가 입은 옷 세트
 class Frequency_Fashion(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
@@ -58,4 +61,3 @@ class Frequency_Fashion(models.Model):
     outer = models.ForeignKey(Clothes_category, related_name='fre_outer', on_delete=models.CASCADE)
     class Meta:
         db_table = 'frequency_fashion'
-'''

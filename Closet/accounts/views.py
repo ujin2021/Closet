@@ -158,8 +158,7 @@ class Activate(View):
 def email_verify(request):
     return render(request, 'accounts/verify.html')
 
-# from machinelearning pc 
-# top+bottom+outer => category 로 변경하기
+# CLEAN CODE!!
 class ClothesInfo(ListView):
     def get(self, request):
         queryset = Clothes_category.objects.all()
@@ -212,6 +211,7 @@ class ClothesInfo(ListView):
 
             print('result id: ', result[0].id) # user_closet 의 id
             print('clothes id : ', result[0].clothes_id)
+
             status = class_arr[3]
             print('status : ', status)
             
@@ -223,4 +223,31 @@ class ClothesInfo(ListView):
                 clothes.status = False
             clothes.save()
 
+            # IN/OUT 시 user_closet의 frequency +1
+            user_closet_obj = User_Closet.objects.get(clothes_id=result[0].clothes_id, user_id=user_id)
+            frequency = user_closet_obj.frequency + 1
+            user_closet_obj.frequency = frequency
+            user_closet_obj.save()
+
             return JsonResponse({'code':201, 'msg': 'status update ok'}, status=200)
+
+# https://gist.github.com/ujin2021/94df639614dbecff24325787185481df
+class ClothesList(ListView):
+    @LoginConfirm
+    def post(self, request): # (token+(날씨?) -> 해당회원의 옷 보내줌) (토큰+그중에 하나고름 -> 하나고른것+날씨고려해서 머신러닝으로)
+        user_id = request.user.id
+        print("request user id: ", user_id)
+
+        weather = request.POST.get('weather', '')
+
+        user_clothes = User_Closet.objects.filter(user_id=user_id) # 사용자의 옷 id를 모두가져옴
+        user_clothes_list = list(map(lambda x : x.id, user_clothes)) # clothes_category 에서 분류와 일치하는 옷의 id list
+        print("user_clothes_list : ", user_clothes_list)
+        
+        # 날씨 별 long or short는 정해야함
+        if (int(weather) > 20) :
+            print('weather : ', int(weather))
+            for i in user_clothes_list :
+                filtering = Clothes_category.objects.filter(id=i, category__startswith='short')
+        print('filtering : ', filtering)
+        return JsonResponse({'code':201, 'msg': 'clothes list ok'}, status=200)
