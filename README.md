@@ -62,7 +62,7 @@ https://rainsound-k.github.io/deploy/2018/05/02/instance-setting-and-django-depl
 venv에서 기본 uwsgi 돌리면 잘돌아감. <br>
 설정들이 다 건드리면 안되는 폴더에 들어있어서 인스턴스 새로 갈아 엎음. python3.7 설정. python3 명령어로 해야함!<br>
 다 갈아엎고 clone한 후에(clone하고 폴더 경로 수정. git 올릴때 유의할것) pip install 하고, mysql연결. <br>
-https://yuddomack.tistory.com/entry/%EC%B2%98%EC%9D%8C%EB%B6%80%ED%84%B0-%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94-EC2-nginx%EC%99%80-uwsgi%EB%A1%9C-django-%EC%84%9C%EB%B9%84%EC%8A%A4%ED%95%98%EA%B8%B0 관련설정, 설정파일 경로는 이 사이트 참고했음.
+<a href="https://yuddomack.tistory.com/entry/%EC%B2%98%EC%9D%8C%EB%B6%80%ED%84%B0-%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94-EC2-nginx%EC%99%80-uwsgi%EB%A1%9C-django-%EC%84%9C%EB%B9%84%EC%8A%A4%ED%95%98%EA%B8%B0">ubuntu mysql 설정</a>
 
 ##### 7/16 (목)
 🔺ec2 uwsgi.log를 살펴보는데 다른건 다 괜찮은거같은데 !!! no internal routing support, rebuild with pcre support !!! 이 오류가 뜬다. <br>
@@ -78,7 +78,7 @@ https://yuddomack.tistory.com/entry/%EC%B2%98%EC%9D%8C%EB%B6%80%ED%84%B0-%EC%8B%
 ✔️ awsEC2+uwsgi+nginx (venv로 실행시킴..) -> 옷 사진 받고 db저장까지는 ok <br>
 
 ##### 7/23 (목)
-✔️ social login 한것 어떻게 db에 저장하고 처리할 지 고민.. -> https://koreanblacklee.github.io/posts/djangsociallogin/  이 사이트 찾아보고 어떻게 할지 감을 잡았다 <br>
+✔️ social login 한것 어떻게 db에 저장하고 처리할 지 고민.. -> <a href="https://koreanblacklee.github.io/posts/djangsociallogin/"> 이 사이트 찾아보고 어떻게 할지 감을 잡았다 </a> <br>
 ✔️ 이렇게 하는게 맞는진 모르겠지만 일단 소셜로그인 db table을생성하고, 기존 account db에 fk로 소셜 추가. <br> 
 앱과 테스트는 아직 해보지 않음. <br>
 ✔️ django+ec2+uwsgi+nginx 설정 완료!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! <br>
@@ -109,3 +109,11 @@ https://yuddomack.tistory.com/entry/%EC%B2%98%EC%9D%8C%EB%B6%80%ED%84%B0-%EC%8B%
 * 추천관련(빈도수 체크, 추천옷세트 db저장)
 * 라즈베리파이 테이블에 user id를 fk로 저장할지 user table에 rasp id를 저장할지(이렇게 하면 user table에 처음에 rasp 이 null이 됨. -> 이건 무조건 null 이 되면 안되는거)
 * 라즈베리파이로 토큰 잘 보내지는지 체크(using socket)
+
+##### 8/21
+✔️ user_closet에 frequency 스키마 추가, recommendation(추천해준 리스트), frequency_fashion(추천해준 리스트 중 사용자가 고른것) table 추가 <br>
+✔️ user_closet 에 in/out update하는 것 수정 (-> 단점 :  사용자에게 색_패턴_카테고리 가 같은 옷이 있으면 안됨) <br> 
+* <a href="https://m.blog.naver.com/PostView.nhn?blogId=dudwo567890&logNo=220924729927&proxyReferer=https:%2F%2Fwww.google.com%2F">django ORM</a> -> 계절에 따라서 옷을 long/ shortfiltering 할 때 참고
+> 한벌옷에서 longdress/shortdress 는 s(summer)/w(winter)이 앞에 붙기때문에 이건 따로 신경써야함.
+
+* 사용자가 '옷추천받기' 버튼을 누르면 사용자 옷들 중 날씨를 반영해서 옷리스트들을 모두 앱으로 보내주고, 앱에서 하나를 골라주면 그것과 나머지(만약 상의를 선택 -> 계절로 필터링 한 것 중 하의만 보내주기) 이렇게 구현
