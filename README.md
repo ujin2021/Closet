@@ -34,8 +34,8 @@
 2. aws ubuntu에 python 및 pyenv 설정 <br>
 3. srv 폴더 생성, git clone(scp가 작동이 안되었다.. 왜지?) -> 지금 상위폴더 두개있는데 그냥 srv폴더 바로밑에 project 폴더 두기!! <br>
 특정branch만 clone하는 법 : git clone -b {branch_name} --single-branch {저장소 URL} <br>
-ex) git clone -b javajigi --single-branch https://github.com/javajigi/java-racingcar <br>
-참고사이트 : https://lhy.kr/ec2-ubuntu-deploy <br>
+ex) git clone -b javajigi --single-branch <a href="https://github.com/javajigi/java-racingcar">참고사이트1</a> <br>
+<a href="https://lhy.kr/ec2-ubuntu-deploy">참고사이트2</a> <br>
 
 ##### 7/12 (일)
 토요일은 아파서 스킵ㅜ
@@ -54,7 +54,7 @@ https://dejavuqa.tistory.com/317 (ubuntu mysql 설치, 설정) <br>
 https://nachwon.github.io/django-deploy-1-aws/ (aws에서 django 배포. 그냥 runserver하는것) <br>
 ✔️ uWSGI 설정 <br>
 내일할것: nginx 성공시키기 <br>
-https://rainsound-k.github.io/deploy/2018/05/02/instance-setting-and-django-deploy-part2.html 사이트 4.2부분부터!<br>
+<a href="https://rainsound-k.github.io/deploy/2018/05/02/instance-setting-and-django-deploy-part2.html">사이트</a> 4.2부분부터!<br>
 
 ##### 7/15 (수)
 🔺 uWSGI 설정, nginx 설정 + 배포 <br>
