@@ -38,7 +38,7 @@ def signup(request, format=None):
             print('signup get e : ', e)
             return JsonResponse(e, safe=False)
 
-    if request.method == "POST": # email, username이 null일 때도 확인,, email form이 맞는지 확인
+    if request.method == "POST": # email, username이 null일 때도 확인, email form이 맞는지 확인
         try:           
             email = request.POST.get('email', '')
             pw = request.POST.get('password', '')
@@ -80,6 +80,9 @@ def signup(request, format=None):
             return JsonResponse({"code":400, 'msg':'INVALID_TYPE'}, status=201)
         except ValidationError:
             return JsonResponse({'code':400, 'msg':'VALIDATION ERROR'}, status=201)
+        except Exception as e:
+            print('signup post e : ', e)
+            return JsonResponse({'code':400, 'msg':e}, status=201)
 
 def login(request, format=None): 
     try :
@@ -112,7 +115,7 @@ def kakao_login(request, format=None): # 앱연동 테스트 해보기, get 넣�
             uid = request.POST.get('uid', '')
             email = request.POST.get('email', '')
             result = social_login(platform=platform, uid=uid, email=email) # social_login 파일에서 처리
-            if(result == False):
+            if(result == False): # uid or email 길이가 0 일 때
                 return JsonResponse({'code':503, 'msg':'login fail', 'token':''}, status=201) # 소셜로그인 실패(정보가 안넘어왔을 경우)
             print("token : ", result['token'])
             return JsonResponse({'code':201, 'msg':'login success', 'token':result['token']}, status=201) # 소셜로그인 성공
@@ -179,41 +182,40 @@ class ClothesInfo(ListView):
             user_id = request.user.id
             print("request user id: ", user_id)
             
-            classify = request.POST.get('classify', '')
+            classify = request.POST.get('classify', '') # color_pattern_category(_IN/OUT)
             print('classify : ', classify)
-            class_arr = classify.split('_')
+            class_arr = classify.split('_') # 처음등록시 len=3, IN/OUT update시 len=4
 
             color = class_arr[0]
             pattern = class_arr[1]
-            category = class_arr[2] # top, bottom, outer
+            category = class_arr[2]
 
-            if(len(class_arr) == 3): # 새로 등록
-                image = request.FILES.get('image') # app과 맞추기
-                nowDate = now.strftime('%Y/%m/%d') # media dir path
-                image_path = nowDate+'/'+str(image)
-                print('image name from app: ', image, 'image path: ', image_path)
+            if(len(class_arr) == 3): # 처음 등록
+                image = request.FILES.get('image') # image file name
+                nowDate = now.strftime('%Y/%m/%d') # for media dir path
+                image_path = nowDate+'/'+str(image) # image 저장 경로가 yy/mm/dd/[image_name]
+                print('image name from app: ', image, 'image path: ', image_path) 
                 
                 form = Clothes_category(image=image, color=color, pattern=pattern, category=category)
-                form.save() # clothes_category db에 image저장
+                form.save() # clothes_category db에 clothes info 저장
                 print("save complete")
             
-                clothes = Clothes_category.objects.get(image=image_path) # 해당 옷의 row 가져오기
-                print("clothes row id : ", clothes.id)
-                closet_form = User_Closet(user_id=request.user.id, clothes_id=clothes.id) # foreignkey 로(user, clothes의 pk) 저장
+                clothes = Clothes_category.objects.get(image=image_path) # 방금 저장한 옷의 row 가져오기
+                print("clothes row id : ", clothes.id) # 해당 옷의 id
+                closet_form = User_Closet(user_id=request.user.id, clothes_id=clothes.id) # user_closet db에 (user id, clothes id) 저장
                 closet_form.save()
 
                 return JsonResponse({'code':201, 'msg': 'save ok'}, status=200)
 
-            if(len(class_arr) == 4):
-                print('IN/OUT CHECK')
-                clothes = Clothes_category.objects.filter(color=color, pattern=pattern, category=category)
+            if(len(class_arr) == 4): # IN/OUT update
+                clothes = Clothes_category.objects.filter(color=color, pattern=pattern, category=category) # 옷장 camera가 옷을 분석한 결과와 일치하는 옷 찾기
                 print('clothes id : ', clothes, ' leng : ', len(clothes))
                 clothes_list = list(map(lambda x : x.id, clothes)) # clothes_category 에서 분류와 일치하는 옷의 id list
                 print(clothes_list)
                 
                 for i in clothes_list:
-                    result = User_Closet.objects.filter(clothes_id=i, user_id=user_id)
-                    if(len(result) > 0):
+                    result = User_Closet.objects.filter(clothes_id=i, user_id=user_id) # 옷이 해당 user의 것인지 확인
+                    if(len(result) > 0): # 해당 user의 옷
                         print('result[0] : ', result[0])
                         break
 
@@ -223,7 +225,7 @@ class ClothesInfo(ListView):
                 status = class_arr[3]
                 print('status : ', status)
                 
-                clothes = Clothes_category.objects.get(id = result[0].clothes_id)
+                clothes = Clothes_category.objects.get(id = result[0].clothes_id) # 해당 옷 status update위해 obj 가져옴
 
                 if(status == 'IN'):
                     clothes.status = True
@@ -231,8 +233,8 @@ class ClothesInfo(ListView):
                     clothes.status = False
                 clothes.save()
 
-                # IN/OUT 시 user_closet의 frequency +1
-                user_closet_obj = User_Closet.objects.get(clothes_id=result[0].clothes_id, user_id=user_id)
+                # IN/OUT 시 user_closet의 frequency +1 -> transaction code
+                user_closet_obj = result[0]
                 frequency = user_closet_obj.frequency + 1
                 user_closet_obj.frequency = frequency
                 user_closet_obj.save()
