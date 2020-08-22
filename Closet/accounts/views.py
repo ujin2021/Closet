@@ -12,6 +12,7 @@ from .rasp_sendToken import *
 
 from django.views import View
 from django.views.generic import ListView
+from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -226,23 +227,28 @@ class ClothesInfo(ListView):
                 print('status : ', status)
                 
                 clothes = Clothes_category.objects.get(id = result[0].clothes_id) # 해당 옷 status update위해 obj 가져옴
+                
+                sid = transaction.savepoint()
 
                 if(status == 'IN'):
                     clothes.status = True
                 else:
                     clothes.status = False
-                clothes.save()
+                clothes.save() # savepoint 1
 
                 # IN/OUT 시 user_closet의 frequency +1 -> transaction code
                 user_closet_obj = result[0]
                 frequency = user_closet_obj.frequency + 1
                 user_closet_obj.frequency = frequency
-                user_closet_obj.save()
+                user_closet_obj.save() # savepoint 2
+
+                transaction.savepoint_commit(sid)
 
                 return JsonResponse({'code':201, 'msg': 'status update ok'}, status=200)
 
         except Exception as e :
             print('clothesInfo e : ', e)
+            transaction.savepoint_rollback(sid)
             return JsonResponse({'code':400, 'msg': e}, status=400)
 
 
