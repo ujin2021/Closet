@@ -12,6 +12,7 @@ from .rasp_sendToken import *
 
 from django.views import View
 from django.views.generic import ListView
+from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -29,22 +30,21 @@ now = datetime.now()
 
 def signup(request, format=None):
     if request.method == "GET":
-        queryset = Account.objects.all()
-        serializer = AccountSerializer(queryset, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        try :
+            queryset = Account.objects.all()
+            serializer = AccountSerializer(queryset, many=True)
+            return JsonResponse(serializer.data, safe=False)
+        except Exception as e :
+            print('signup get e : ', e)
+            return JsonResponse(e, safe=False)
 
     if request.method == "POST": # email, username이 null일 때도 확인,, email form이 맞는지 확인
-        # data = json.loads(request.body) #insomina
         try:           
             email = request.POST.get('email', '')
             pw = request.POST.get('password', '')
             password = bcrypt.hashpw(pw.encode('UTF-8'), bcrypt.gensalt()).decode('UTF-8')
             username = request.POST.get('username', '')
    
-            # email = data['email'] # insomnia
-            # password = bcrypt.hashpw(data['password'].encode("UTF-8"), bcrypt.gensalt()).decode("UTF-8") # insomnia
-            # username = data['username'] # insomnia
-
             print("email = " + email+" username = " + username)
             myuser = Account.objects.filter(email=email)
 
@@ -82,57 +82,57 @@ def signup(request, format=None):
             return JsonResponse({'code':400, 'msg':'VALIDATION ERROR'}, status=201)
 
 def login(request, format=None): 
-    if request.method == "POST":
-        # data = json.loads(request.body) # insomnia
-        # email = data['email'] # insomnia
-        email = request.POST.get('email', '')
-        print('login email = ' , email)
-        myuser = Account.objects.filter(email=email)
-        if myuser: # email이 db에 저장되어있으면
-            print("email exits")
-            user = Account.objects.get(email=email)
-            #if bcrypt.checkpw(data['password'].encode('UTF-8'), user.password.encode('UTF-8')): # insomnia
-            password = request.POST.get('password', '')
-            if bcrypt.checkpw(password.encode('UTF-8'), user.password.encode('UTF-8')):
-                print("password correct, my user!")
-                if user.is_active == True: # email 인증까지 완료한 회원이면 로그인 성공
-                    print("user is_active turns True")
-                    token = jwt.encode({'user':user.id}, SECRET_KEY['secret'], SECRET_KEY['algorithm']).decode('UTF-8')
-                    print("token = ", token)
-                    # rasp_socket = sendToken(user.raspberry_id, token)
-                    # print(rasp_socket)
-                    return JsonResponse({'code':201, 'msg':'login success', 'token':token}, status=201) # login 시 token 발급
-                return JsonResponse({'code':0, 'msg':'not activated account'}, status=201) # email 활성화 되지 않음
-            return JsonResponse({'code':1, 'msg':'password incorrect'}, status=201) # email에 매칭된 pw가 틀림
-        return JsonResponse({'code':2, 'msg':'not my user'}, status=201) # 해당 email이 db에 없음
+    try :
+        if request.method == "POST":
+            email = request.POST.get('email', '')
+            print('login email = ' , email)
+            myuser = Account.objects.filter(email=email)
+            if myuser: # email이 db에 저장되어있으면
+                print("email exits")
+                user = Account.objects.get(email=email)
+                password = request.POST.get('password', '')
+                if bcrypt.checkpw(password.encode('UTF-8'), user.password.encode('UTF-8')):
+                    print("password correct, my user!")
+                    if user.is_active == True: # email 인증까지 완료한 회원이면 로그인 성공
+                        print("user is_active turns True")
+                        token = jwt.encode({'user':user.id}, SECRET_KEY['secret'], SECRET_KEY['algorithm']).decode('UTF-8')
+                        print("token = ", token)
+                        return JsonResponse({'code':201, 'msg':'login success', 'token':token}, status=201) # login 시 token 발급
+                    return JsonResponse({'code':0, 'msg':'not activated account'}, status=201) # email 활성화 되지 않음
+                return JsonResponse({'code':1, 'msg':'password incorrect'}, status=201) # email에 매칭된 pw가 틀림
+            return JsonResponse({'code':2, 'msg':'not my user'}, status=201) # 해당 email이 db에 없음
+    except Exception as e :
+        print('login e : ', e)
+        return JsonResponse({'code':400, 'msg':e}, status=400)
 
 def kakao_login(request, format=None): # 앱연동 테스트 해보기, get 넣어주기
-    if request.method == "POST":
-        # data = json.loads(request.body) # insomnia
-        # uid = data['uid']
-        # email = data['email']
-        platform = 1
-        uid = request.POST.get('uid', '')
-        email = request.POST.get('email', '')
-        result = social_login(platform=platform, uid=uid, email=email) # social_login 파일에서 처리
-        if(result == False):
-            return JsonResponse({'code':503, 'msg':'login fail', 'token':''}, status=201) # 소셜로그인 실패(정보가 안넘어왔을 경우)
-        print("token : ", result['token'])
-        # rasp_socket = sendToken(result['id'], result['token'])
-        # print(rasp_socket)
-        return JsonResponse({'code':201, 'msg':'login success', 'token':result['token']}, status=201) # 소셜로그인 성공
+    try :
+        if request.method == "POST":
+            platform = 1
+            uid = request.POST.get('uid', '')
+            email = request.POST.get('email', '')
+            result = social_login(platform=platform, uid=uid, email=email) # social_login 파일에서 처리
+            if(result == False):
+                return JsonResponse({'code':503, 'msg':'login fail', 'token':''}, status=201) # 소셜로그인 실패(정보가 안넘어왔을 경우)
+            print("token : ", result['token'])
+            return JsonResponse({'code':201, 'msg':'login success', 'token':result['token']}, status=201) # 소셜로그인 성공
+    except Exception as e :
+        print('kakao_login e :', e)
+        return JsonResponse({'code':400, 'msg':e}, status=400)
 
 def google_login(request, format=None): # 앱연동 테스트 해보기, get 넣어주기
-    if request.method == "POST":
-        platform = 2
-        uid = request.POST.get('uid', '')
-        email = request.POST.get('email', '')
-        result = social_login(platform=platform, uid=uid, email=email)
-        if(result == False):
-            return JsonResponse({'code':503, 'msg':'login fail', 'token':'token fail'}, status=201) # 소셜로그인 실패(정보가 안넘어왔을 경우)
-        # rasp_socket = sendToken(result['id'], result['token'])
-        # print(rasp_socket)
-        return JsonResponse({'code':201, 'msg':'login success', 'token':result['token']}, status=201) # 소셜로그인 성공
+    try :
+        if request.method == "POST":
+            platform = 2
+            uid = request.POST.get('uid', '')
+            email = request.POST.get('email', '')
+            result = social_login(platform=platform, uid=uid, email=email)
+            if(result == False):
+                return JsonResponse({'code':503, 'msg':'login fail', 'token':'token fail'}, status=201) # 소셜로그인 실패(정보가 안넘어왔을 경우)
+            return JsonResponse({'code':201, 'msg':'login success', 'token':result['token']}, status=201) # 소셜로그인 성공
+    except Exception as e :
+        print('google_login e : ', e)
+        return JsonResponse({'code':400, 'msg':e}, status=400)
 
 
 # logout 시에는 android 앱에서 토큰을 더이상 넘겨주지 않으면 됨.
@@ -156,98 +156,127 @@ class Activate(View):
             return JsonResponse({'code':400, 'msg':'KEY ERROR'}, status=201)
 
 def email_verify(request):
-    return render(request, 'accounts/verify.html')
+    try :
+        return render(request, 'accounts/verify.html')
+    except Exception as e :
+        print('email_verify e : ', e)
+        return render(request, e)
 
 # CLEAN CODE!!
 class ClothesInfo(ListView):
     def get(self, request):
-        queryset = Clothes_category.objects.all()
-        serializer = ClothesInfoSerializer(queryset, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        try :
+            queryset = Clothes_category.objects.all()
+            serializer = ClothesInfoSerializer(queryset, many=True)
+            return JsonResponse(serializer.data, safe=False)
+        except Exception as e :
+            print('ClothesInfo get e : ', e)
+            return JsonResponse(e, safe=False)
 
     @LoginConfirm
     def post(self,request):
-        # data = json.loads(request.body) # insomnia
-        user_id = request.user.id
-        print("request user id: ", user_id)
-        
-        classify = request.POST.get('classify', '')
-        print('classify : ', classify)
-        class_arr = classify.split('_')
-
-        color = class_arr[0]
-        pattern = class_arr[1]
-        category = class_arr[2] # top, bottom, outer
-
-        if(len(class_arr) == 3): # 새로 등록
-            image = request.FILES.get('image') # app과 맞추기
-            nowDate = now.strftime('%Y/%m/%d') # media dir path
-            image_path = nowDate+'/'+str(image)
-            print('image name from app: ', image, 'image path: ', image_path)
+        try : 
+            user_id = request.user.id
+            print("request user id: ", user_id)
             
-            form = Clothes_category(image=image, color=color, pattern=pattern, category=category)
-            form.save() # clothes_category db에 image저장
-            print("save complete")
-        
-            clothes = Clothes_category.objects.get(image=image_path) # 해당 옷의 row 가져오기
-            print("clothes row id : ", clothes.id)
-            closet_form = User_Closet(user_id=request.user.id, clothes_id=clothes.id) # foreignkey 로(user, clothes의 pk) 저장
-            closet_form.save()
+            classify = request.POST.get('classify', '')
+            print('classify : ', classify)
+            class_arr = classify.split('_')
 
-            return JsonResponse({'code':201, 'msg': 'save ok'}, status=200)
+            color = class_arr[0]
+            pattern = class_arr[1]
+            category = class_arr[2] # top, bottom, outer
 
-        if(len(class_arr) == 4):
-            print('IN/OUT CHECK')
-            clothes = Clothes_category.objects.filter(color=color, pattern=pattern, category=category)
-            print('clothes id : ', clothes, ' leng : ', len(clothes))
-            clothes_list = list(map(lambda x : x.id, clothes)) # clothes_category 에서 분류와 일치하는 옷의 id list
-            print(clothes_list)
+            if(len(class_arr) == 3): # 새로 등록
+                image = request.FILES.get('image') # app과 맞추기
+                nowDate = now.strftime('%Y/%m/%d') # media dir path
+                image_path = nowDate+'/'+str(image)
+                print('image name from app: ', image, 'image path: ', image_path)
+                
+                form = Clothes_category(image=image, color=color, pattern=pattern, category=category)
+                form.save() # clothes_category db에 image저장
+                print("save complete")
             
-            for i in clothes_list:
-                result = User_Closet.objects.filter(clothes_id=i, user_id=user_id)
-                if(len(result) > 0):
-                    print('result[0] : ', result[0])
-                    break
+                clothes = Clothes_category.objects.get(image=image_path) # 해당 옷의 row 가져오기
+                print("clothes row id : ", clothes.id)
+                closet_form = User_Closet(user_id=request.user.id, clothes_id=clothes.id) # foreignkey 로(user, clothes의 pk) 저장
+                closet_form.save()
 
-            print('result id: ', result[0].id) # user_closet 의 id
-            print('clothes id : ', result[0].clothes_id)
+                return JsonResponse({'code':201, 'msg': 'save ok'}, status=200)
 
-            status = class_arr[3]
-            print('status : ', status)
-            
-            clothes = Clothes_category.objects.get(id = result[0].clothes_id)
+            if(len(class_arr) == 4):
+                print('IN/OUT CHECK')
+                clothes = Clothes_category.objects.filter(color=color, pattern=pattern, category=category)
+                print('clothes id : ', clothes, ' leng : ', len(clothes))
+                clothes_list = list(map(lambda x : x.id, clothes)) # clothes_category 에서 분류와 일치하는 옷의 id list
+                print(clothes_list)
+                
+                for i in clothes_list:
+                    result = User_Closet.objects.filter(clothes_id=i, user_id=user_id)
+                    if(len(result) > 0):
+                        print('result[0] : ', result[0])
+                        break
 
-            if(status == 'IN'):
-                clothes.status = True
-            else:
-                clothes.status = False
-            clothes.save()
+                print('result id: ', result[0].id) # user_closet 의 id
+                print('clothes id : ', result[0].clothes_id)
 
-            # IN/OUT 시 user_closet의 frequency +1
-            user_closet_obj = User_Closet.objects.get(clothes_id=result[0].clothes_id, user_id=user_id)
-            frequency = user_closet_obj.frequency + 1
-            user_closet_obj.frequency = frequency
-            user_closet_obj.save()
+                status = class_arr[3]
+                print('status : ', status)
+                
+                clothes = Clothes_category.objects.get(id = result[0].clothes_id)
 
-            return JsonResponse({'code':201, 'msg': 'status update ok'}, status=200)
+                if(status == 'IN'):
+                    clothes.status = True
+                else:
+                    clothes.status = False
+                clothes.save()
+
+                # IN/OUT 시 user_closet의 frequency +1
+                user_closet_obj = User_Closet.objects.get(clothes_id=result[0].clothes_id, user_id=user_id)
+                frequency = user_closet_obj.frequency + 1
+                user_closet_obj.frequency = frequency
+                user_closet_obj.save()
+
+                return JsonResponse({'code':201, 'msg': 'status update ok'}, status=200)
+
+        except Exception as e :
+            print('clothesInfo e : ', e)
+            return JsonResponse({'code':400, 'msg': e}, status=400)
+
 
 # https://gist.github.com/ujin2021/94df639614dbecff24325787185481df
 class ClothesList(ListView):
     @LoginConfirm
     def post(self, request): # (token+(날씨?) -> 해당회원의 옷 보내줌) (토큰+그중에 하나고름 -> 하나고른것+날씨고려해서 머신러닝으로)
-        user_id = request.user.id
-        print("request user id: ", user_id)
+        try:
+            user_id = request.user.id
+            print("request user id: ", user_id)
 
-        weather = request.POST.get('weather', '')
+            weather = request.POST.get('weather', '')
 
-        user_clothes = User_Closet.objects.filter(user_id=user_id) # 사용자의 옷 id를 모두가져옴
-        user_clothes_list = list(map(lambda x : x.id, user_clothes)) # clothes_category 에서 분류와 일치하는 옷의 id list
-        print("user_clothes_list : ", user_clothes_list)
-        
-        # 날씨 별 long or short는 정해야함
-        if (int(weather) > 20) :
-            print('weather : ', int(weather))
-            for i in user_clothes_list :
-                filtering = Clothes_category.objects.filter(id=i, category__startswith='short')
-        print('filtering : ', filtering)
-        return JsonResponse({'code':201, 'msg': 'clothes list ok'}, status=200)
+            user_clothes = User_Closet.objects.filter(user_id=user_id) # 사용자의 옷 id를 모두가져옴
+            user_clothes_list = list(map(lambda x : x.clothes_id, user_clothes)) # clothes_category 에서 분류와 일치하는 옷의 id list
+            print("user_clothes_list : ", user_clothes_list) # user_closet 에서 해당 사용자의 옷들
+            
+            filtering = []
+            # 날씨 별 long or short는 정해야함(습도, 비/눈 고려)
+            if (int(weather) > 20) :
+                print('weather : ', int(weather))
+                for i in user_clothes_list :
+                    print('i : ', i)
+                    result = Clothes_category.objects.filter(id=i, status=1)
+                    if(len(result) > 0) :
+                        print('result : ', result[0])
+                        print('result.category', result[0].category)
+                        category = result[0].category
+                        if(category.find('short') > -1 or category.find('sshort') > -1 or category.find('slong') > -1):
+                            filtering.append(result[0])
+
+            print('filtering : ', filtering)
+            filtering_list = list(map(lambda x : x.id, filtering))
+            return JsonResponse({'code':201, 'msg': filtering_list}, status=200)
+
+        except Exception as e :
+            print ('ClothesList e : ', e)
+            return JsonResponse({'code' : 400, 'msg' : e}, status = 400)
+
