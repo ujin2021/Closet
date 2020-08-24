@@ -167,6 +167,7 @@ def email_verify(request):
         return render(request, e)
 
 # CLEAN CODE!!
+# https://wayhome25.github.io/django/2017/06/20/selected_related_prefetch_related/ -> query 간단하게 줄일수 있을것같다(fk 가져오기)
 class ClothesInfo(ListView):
     def get(self, request):
         try :
@@ -215,7 +216,7 @@ class ClothesInfo(ListView):
                 print(clothes_list)
                 
                 for i in clothes_list:
-                    result = User_Closet.objects.filter(clothes_id=i, user_id=user_id) # 옷이 해당 user의 것인지 확인
+                    result = User_Closet.objects.select_related('clothes').filter(clothes_id=i, user_id=user_id) # 옷이 해당 user의 것인지 확인
                     if(len(result) > 0): # 해당 user의 옷
                         print('result[0] : ', result[0])
                         break
@@ -252,7 +253,8 @@ class ClothesInfo(ListView):
             return JsonResponse({'code':400, 'msg': e}, status=400)
 
 
-# https://gist.github.com/ujin2021/94df639614dbecff24325787185481df
+# https://gist.github.com/ujin2021/94df639614dbecff24325787185481df -> 옷 category 
+# select_related -> db성능 개선
 class ClothesList(ListView):
     @LoginConfirm
     def post(self, request): # (token+(날씨?) -> 해당회원의 옷 보내줌) (토큰+그중에 하나고름 -> 하나고른것+날씨고려해서 머신러닝으로)
@@ -262,7 +264,7 @@ class ClothesList(ListView):
 
             weather = request.POST.get('weather', '')
 
-            user_clothes = User_Closet.objects.filter(user_id=user_id) # 사용자의 옷 id를 모두가져옴
+            user_clothes = User_Closet.objects.select_related('clothes').filter(user_id=user_id) # 사용자의 옷 id를 모두가져옴
             user_clothes_list = list(map(lambda x : x.clothes_id, user_clothes)) # clothes_category 에서 분류와 일치하는 옷의 id list
             print("user_clothes_list : ", user_clothes_list) # user_closet 에서 해당 사용자의 옷들
             
@@ -287,4 +289,4 @@ class ClothesList(ListView):
         except Exception as e :
             print ('ClothesList e : ', e)
             return JsonResponse({'code' : 400, 'msg' : e}, status = 400)
-
+            

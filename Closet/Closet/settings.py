@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'debug_toolbar',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -68,23 +69,15 @@ REST_FRAMEWORK = {
     ),
 }
 
-# JWT_AUTH = {
-#     'JWT_SECRET_KEY': SECRET_KEY,
-#     'JWT_ALGORITHM': 'HS256',
-#     'JWT_ALLOW_REFRESH': True,
-#     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
-#     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=28),
-# }
-
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'Closet.urls'
@@ -113,7 +106,6 @@ WSGI_APPLICATION = 'Closet.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = DATABASES
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -191,3 +183,7 @@ STATIC_DIR = os.path.join(BASE_DIR,'static')
 STATICFILES_DIRS = [
     STATIC_DIR,
 ]
+
+
+
+# INTERNAL_IPS = ['13.124.208.47', '127.0.0.1', '0.0.0.0']
