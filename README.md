@@ -16,7 +16,7 @@
 ##### 7/6 (월)
 ✔️ signup, login 코드 완성 (그냥 일반 model 정의하여 사용. rest-auth 코드 사용안함) <br>
 ✔️ 회원가입 후 이메일 인증 코드 작성(이메일이 실제 보내지지 않음. shell에서는 보낼 이메일내용과 1이 뜨긴함. 원래 테스트로 보낼때도 이메일이 실제로 보내졌는데 지금은 shell에서만 뜸.)<br>
--> 해결 : settings.py 에서 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' 의 smtp 가 consol로 되어있었다.
+-> 해결 : settings.py 에서 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' 의 smtp 가 console로 되어있었다.
 
 ##### 7/7 (화)
 ✔️ 앱으로 signup + 실제 email로 인증메일 전송 + email 인증(is_active가 1로 변경) + login 확인.<br>
