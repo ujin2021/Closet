@@ -50,6 +50,7 @@ class Recommendation(models.Model):
     top = models.ForeignKey(Clothes_category, related_name='rec_top', on_delete=models.CASCADE)
     bottom = models.ForeignKey(Clothes_category, related_name='rec_bottom',on_delete=models.CASCADE)
     outer = models.ForeignKey(Clothes_category, related_name='rec_outer',on_delete=models.CASCADE)
+    
     class Meta:
         db_table = 'recommendation'
 
@@ -59,5 +60,6 @@ class Frequency_Fashion(models.Model):
     top = models.ForeignKey(Clothes_category, related_name='fre_top', on_delete=models.CASCADE)
     bottom = models.ForeignKey(Clothes_category, related_name='fre_bottom', on_delete=models.CASCADE)
     outer = models.ForeignKey(Clothes_category, related_name='fre_outer', on_delete=models.CASCADE)
+    
     class Meta:
         db_table = 'frequency_fashion'
