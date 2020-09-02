@@ -1,0 +1,12 @@
+server {
+        listen 8000;
+        server_name ec2-13-124-208-47.ap-northeast-2.compute.amazonaws.com;
+
+        location = /favicon.ico { access_log off; log_not_found off; }
+
+        location / {
+                include uwsgi_params;
+                uwsgi_pass unix:/home/ubuntu/srv/Closet/Closet.sock;
+        }
+
+}
