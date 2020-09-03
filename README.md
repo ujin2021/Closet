@@ -119,3 +119,22 @@ venv에서 기본 uwsgi 돌리면 잘돌아감. <br>
 * 사용자가 '옷추천받기' 버튼을 누르면 사용자 옷들 중 날씨를 반영해서 옷리스트들을 모두 앱으로 보내주고, 앱에서 하나를 골라주면 그것과 나머지(만약 상의를 선택 -> 계절로 필터링 한 것 중 하의만 보내주기) 이렇게 구현
 
 <a href='https://gist.github.com/921736e1fddba6932d97447570ce88a8.git'>옷 카테고리</a>
+
+#### 옷 추천 함수 인자
+
+weather 로 1차 filtering 해서
+```
+{
+top : []
+bottom : [] 
+dress : []
+outer : []
+top_df : []
+bottom_df : []
+dress_df : []
+outer_df : []
+}
+
+df : 그색 뺀 나머지 옷들
++ hashtag
+```
