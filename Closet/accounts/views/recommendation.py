@@ -55,9 +55,10 @@ class Recommendation(ListView) :
                     filtering[CATEGORY[obj['clothes__category']]+'_df'].append(f'{obj["clothes__category"]}_{obj["clothes__color"]}_{obj["clothes__pattern"]}')
                     filtering_freq[CATEGORY[obj['clothes__category']]+'_df'].append(obj["frequency"])
             
-            print(f'filtering : {filtering}, filtering_freq : {filtering_freq}, sex : {sex}, hashtag : {hashtag}')
+            print(f'filtering : {filtering}, filtering_freq : {filtering_freq}, sex : {sex}, hashtag : {hashtag}, weather : {weather}')
 
             return JsonResponse({'code' : 200, 'msg' : 'ok'}, status = 200)
+            # android 로 옷세트들({'top' : 'top_image_url', 'bottom' : 'bottom_image_url' ... })
             
         except Exception as e : 
             print('Recommendation e : ', e)

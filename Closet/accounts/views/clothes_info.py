@@ -10,8 +10,6 @@ from django.core.exceptions import ValidationError
 from datetime import datetime
 now = datetime.now()
 
-# CLEAN CODE!!
-# https://wayhome25.github.io/django/2017/06/20/selected_related_prefetch_related/ -> query 간단하게 줄일수 있을것같다(fk 가져오기)
 class ClothesInfo(ListView):
     def get(self, request):
         try :
@@ -51,7 +49,7 @@ class ClothesInfo(ListView):
                 closet_form = User_Closet(user_id=request.user.id, clothes_id=clothes.id) # user_closet db에 (user id, clothes id) 저장
                 closet_form.save()
 
-                return JsonResponse({'code':201, 'msg': 'save ok'}, status=200)
+                return JsonResponse({'code':201, 'msg': 'save ok'}, status=201)
 
             if(len(class_arr) == 4): # IN/OUT update
                 clothes = Clothes_category.objects.filter(color=color, pattern=pattern, category=category) # 옷장 camera가 옷을 분석한 결과와 일치하는 옷 찾기
@@ -89,7 +87,7 @@ class ClothesInfo(ListView):
 
                 transaction.savepoint_commit(sid)
 
-                return JsonResponse({'code':201, 'msg': 'status update ok'}, status=200)
+                return JsonResponse({'code':201, 'msg': 'status update ok'}, status=201)
 
         except Exception as e :
             print('clothesInfo e : ', e)

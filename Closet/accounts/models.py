@@ -19,11 +19,9 @@ class Account(models.Model):
         db_table = 'account'
 
 class RaspberryPi(models.Model):
-	# user = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, blank=True)
     ip = models.CharField(max_length=50, unique=True)
     port = models.CharField(max_length=10)
-    rasp_id = models.CharField(max_length=50)
-    rasp_password = models.CharField(max_length=50)
 
     class Meta:
         db_table = 'raspberry_pi'

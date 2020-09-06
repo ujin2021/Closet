@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import user, clothes_info, recommendation
+from .views import user, clothes_info, recommendation, mypage
 
 urlpatterns = [
     path('signup/', user.signup), #회원가입
@@ -10,4 +10,5 @@ urlpatterns = [
     path('email-verify/', user.email_verify),
     path('clothes_info/', clothes_info.ClothesInfo.as_view()), # 옷 정보 받기, IN/OUT check
     path('recommendation/', recommendation.Recommendation.as_view()), # 옷 추천 리스트
+    path('mypage/', mypage.Mypage.as_view()) # my 정보들 보내준다
 ]
