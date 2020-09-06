@@ -141,3 +141,4 @@ df : 그색 뺀 나머지 옷들
 + sex
 + hashtag
 ```
+* nginx 로 배포후 image file 받는데 413 오류가 떴다 -> client body size 를 정해줄 수 있었다.(보통 사진 크기가 2.2M) nginx.conf파일에 설정추가해주면 된다.
