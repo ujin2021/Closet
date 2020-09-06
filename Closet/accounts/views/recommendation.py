@@ -49,10 +49,10 @@ class Recommendation(ListView) :
 
             for obj in user_clothes_obj :
                 if (obj['clothes__color'] == color) :
-                    filtering[CATEGORY[obj['clothes__category']]].append(f'{obj["clothes__category"]}_{obj["clothes__color"]}_{obj["clothes__pattern"]}')
+                    filtering[CATEGORY[obj['clothes__category']]].append(f'{obj["clothes__color"]}_{obj["clothes__pattern"]}_{obj["clothes__category"]}')
                     filtering_freq[CATEGORY[obj['clothes__category']]].append(obj["frequency"])
                 else :
-                    filtering[CATEGORY[obj['clothes__category']]+'_df'].append(f'{obj["clothes__category"]}_{obj["clothes__color"]}_{obj["clothes__pattern"]}')
+                    filtering[CATEGORY[obj['clothes__category']]+'_df'].append(f'{obj["clothes__color"]}_{obj["clothes__pattern"]}_{obj["clothes__category"]}')
                     filtering_freq[CATEGORY[obj['clothes__category']]+'_df'].append(obj["frequency"])
             
             print(f'filtering : {filtering}, filtering_freq : {filtering_freq}, sex : {sex}, hashtag : {hashtag}, weather : {weather}')

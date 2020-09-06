@@ -2,6 +2,8 @@ from ..models import *
 from ..serializers import *
 from ..my_settings import SECRET_KEY, EMAIL, LEVEL
 from ..tokenCheck import *
+from ..rasp_socket import sendToken
+
 from django.views.generic import ListView
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
@@ -19,7 +21,7 @@ class Mypage(ListView):
 
             user = Account.objects.get(id=user_id)
             rasp = RaspberryPi.objects.filter(user_id=user_id).values('ip', 'port')
-            
+
             if (len(rasp) == 0) :
                 rasp_ip = ''
                 rasp_port = ''
@@ -53,6 +55,8 @@ class Mypage(ListView):
             else :
                 rasp = RaspberryPi(ip=rasp_ip, port=rasp_port, user_id=user_id)
                 rasp.save()
+                token = request.headers.get("Authorizations", None)
+                send_result = sendToken(token=token, ip=rasp_ip, port=rasp_port)
                 return JsonResponse({'msg': 'create ok'}, status=201)
 
         except Exception as e :
