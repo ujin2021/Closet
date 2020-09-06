@@ -124,7 +124,7 @@ venv에서 기본 uwsgi 돌리면 잘돌아감. <br>
 
 weather 로 1차 filtering 해서
 ```
-{
+filtering = {
 top : []
 bottom : [] 
 dress : []
@@ -134,7 +134,10 @@ bottom_df : []
 dress_df : []
 outer_df : []
 }
-
+filtering_freq = {
+// filtering 구성과 같음(같은옷은 같은 인덱스에 frequency만
+}
 df : 그색 뺀 나머지 옷들
++ sex
 + hashtag
 ```
