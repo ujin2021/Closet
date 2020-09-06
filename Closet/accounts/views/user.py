@@ -9,6 +9,7 @@ from ..text import message
 from ..tokenCheck import *
 from ..social_login import *
 
+from django.db import transaction
 from django.views import View
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -24,6 +25,7 @@ from django.utils.encoding import force_bytes, force_text
 from datetime import datetime
 now = datetime.now()
 
+@transaction.atomic
 def signup(request, format=None):
     if request.method == 'GET':
         try :
@@ -35,41 +37,45 @@ def signup(request, format=None):
             print('signup get e : ', e)
             return JsonResponse(e, safe=False)
 
+    
     if request.method == 'POST': # email, username이 null일 때도 확인(프론트 측에서), email form이 맞는지 확인
         try:           
             email = request.POST.get('email', '')
             pw = request.POST.get('password', '')
             password = bcrypt.hashpw(pw.encode('UTF-8'), bcrypt.gensalt()).decode('UTF-8')
             username = request.POST.get('username', '')
+            sex = request.POST.get('sex', '')
    
-            print("email = " + email+" username = " + username)
+            print("email = " + email + " username = " + username, " sex = " + sex)
             myuser = Account.objects.filter(email=email)
 
             if myuser: # 이미 등록된 email이라면 회원가입 불가
                 print("duplicated email")
                 return JsonResponse({'code':400, 'msg':'duplicated email'}, status=201)
             else : 
-                user = Account.objects.create(
-                    email = email,
-                    password=password,
-                    username=username,
-                    is_active=False,
-                    platform=0
-                )
+                if(email and password and username and sex) : 
+                    user = Account.objects.create(
+                        email = email,
+                        password=password,
+                        username=username,
+                        is_active=False,
+                        sex=sex,
+                        platform=0
+                    )
 
-                current_site = get_current_site(request)
-                domain = current_site.domain
-                uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-                token = account_activation_token.make_token(user)
+                    current_site = get_current_site(request)
+                    domain = current_site.domain
+                    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+                    token = account_activation_token.make_token(user)
 
-                mail_title = "ICE CLOSET 이메일 인증"
-                message_data = message(domain, uidb64, token)
-                mail_to = email
-                email = EmailMessage(mail_title, message_data, to=[mail_to])
-                email.send()
+                    mail_title = "ICE CLOSET 이메일 인증"
+                    message_data = message(domain, uidb64, token)
+                    mail_to = email
+                    email = EmailMessage(mail_title, message_data, to=[mail_to])
+                    email.send()
 
-                print("signup success and send email")
-                return JsonResponse({'code':201, 'msg':'signup success'}, status=201)
+                    print("signup success and send email")
+                    return JsonResponse({'code':201, 'msg':'signup success'}, status=201)
 
         except KeyError:
             return JsonResponse({'code':400, 'msg':'INVALID KEY'}, status=201)
@@ -79,7 +85,7 @@ def signup(request, format=None):
             return JsonResponse({'code':400, 'msg':'VALIDATION ERROR'}, status=201)
         except Exception as e:
             print('signup post e : ', e)
-            return JsonResponse({'code':400, 'msg':e}, status=201)
+            return JsonResponse({'code':400, 'msg':'server error'}, status=201)
 
 def login(request, format=None): 
     try :

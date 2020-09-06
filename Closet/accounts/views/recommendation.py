@@ -1,6 +1,6 @@
 from ..models import *
 from ..serializers import *
-from ..my_settings import SECRET_KEY, EMAIL, LEVEL
+from ..my_settings import SECRET_KEY, EMAIL, LEVEL, CATEGORY
 from ..tokenCheck import *
 from django.views.generic import ListView
 from django.db import transaction
@@ -16,24 +16,19 @@ class Recommendation(ListView) :
     @LoginConfirm
     def post(self, request) : 
         try :
+            filtering = {'top' : [], 'bottom' : [], 'dress' : [], 'outer' : [], 'top_df' : [], 
+            'bottom_df' : [], 'dress_df' : [], 'outer_df' : []}
+            filtering_freq = {'top' : [], 'bottom' : [], 'dress' : [], 'outer' : [], 'top_df' : [], 
+            'bottom_df' : [], 'dress_df' : [], 'outer_df' : []}
+
             user_id = request.user.id
             print('request user id : ', user_id)
 
-            hashtag = request.POST.get('hashtag', '') # 이거는 보내고
-            color = request.POST.get('color', '') # color+weather+빈도수 보내주기
+            hashtag = request.POST.get('hashtag', '')
+            color = request.POST.get('color', '') 
             weather = int(request.POST.get('weather', ''))
+            sex = Account.objects.filter(id=user_id).values('sex')[0]['sex']
 
-            user_clothes = User_Closet.objects.select_related('clothes').filter(user_id=user_id) # 사용자의 옷 id를 모두가져옴
-            print('user_clothes : ', user_clothes)
-            user_clothes_list = list(map(lambda x : x.clothes_id, user_clothes))
-
-            clothesCateId = []
-            for i in user_clothes_list :
-                result = Clothes_category.objects.filter(id=i, status=1, color=color)
-                if(len(result) > 0) :
-                    clothesCateId.append(result[0]) # 해당하는 clothes의 id를 append
-
-            # list -> json or 날씨별로 db저장해놓기
             if(weather >= 27) :
                 weather_clothes = LEVEL[7]
             elif (weather >= 23) :
@@ -49,16 +44,20 @@ class Recommendation(ListView) :
             else :
                 weather_clothes = LEVEL[1]
 
-            weather_filtering = []
-            for i in clothesCateId :
-                clothes_id = i.id
-                category = i.category
-                print('id : ', clothes_id, ', category : ', category)
-                if(category in weather_clothes) :
-                    userClothesId = User_Closet.objects.filter(clothes_id=clothes_id)
-                    weather_filtering.append(f'{i.color}_{i.pattern}_{i.category}_{userClothesId[0].frequency}')
+            # 사용자의 옷 obj을 모두가져옴
+            user_clothes_obj = User_Closet.objects.select_related('clothes').filter(user_id=user_id, clothes__status=1, clothes__category__in=weather_clothes).values("frequency", "clothes__category", "clothes__color", "clothes__pattern")
 
-            return JsonResponse({'code' : 200, 'msg' : weather_filtering}, status = 200)
+            for obj in user_clothes_obj :
+                if (obj['clothes__color'] == color) :
+                    filtering[CATEGORY[obj['clothes__category']]].append(f'{obj["clothes__category"]}_{obj["clothes__color"]}_{obj["clothes__pattern"]}')
+                    filtering_freq[CATEGORY[obj['clothes__category']]].append(obj["frequency"])
+                else :
+                    filtering[CATEGORY[obj['clothes__category']]+'_df'].append(f'{obj["clothes__category"]}_{obj["clothes__color"]}_{obj["clothes__pattern"]}')
+                    filtering_freq[CATEGORY[obj['clothes__category']]+'_df'].append(obj["frequency"])
+            
+            print(f'filtering : {filtering}, filtering_freq : {filtering_freq}, sex : {sex}, hashtag : {hashtag}')
+
+            return JsonResponse({'code' : 200, 'msg' : 'ok'}, status = 200)
             
         except Exception as e : 
             print('Recommendation e : ', e)

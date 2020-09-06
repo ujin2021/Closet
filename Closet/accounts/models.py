@@ -2,11 +2,16 @@ from django.db import models
 
 # app user info
 class Account(models.Model):
+    SEX_CHOICES = (
+        ('F', 'Female',),
+        ('M', 'Male',)
+    )
     email = models.EmailField(max_length=100, unique=True) # email 겸 id
     password = models.CharField(max_length=200, null=True) # social login 시 uid
     username = models.CharField(max_length=100) # social login 시 @ 앞부분
     platform = models.IntegerField(default=0) # normal : 0, kakao : 1, google : 2
     is_active = models.BooleanField(default=False) # social login 시 무조건 1
+    sex = models.CharField(max_length=1, choices=SEX_CHOICES)
     
     def __str__(self):
         return self.username
