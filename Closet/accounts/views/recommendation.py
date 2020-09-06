@@ -57,9 +57,9 @@ class Recommendation(ListView) :
             
             print(f'filtering : {filtering}, filtering_freq : {filtering_freq}, sex : {sex}, hashtag : {hashtag}, weather : {weather}')
 
-            return JsonResponse({'code' : 200, 'msg' : 'ok'}, status = 200)
+            return JsonResponse({'msg' : 'ok'}, status = 200)
             # android 로 옷세트들({'top' : 'top_image_url', 'bottom' : 'bottom_image_url' ... })
             
         except Exception as e : 
             print('Recommendation e : ', e)
-            return JsonResponse({'code' : 400, 'msg' : e}, status = 400)
+            return JsonResponse({'msg' : e}, status = 400)

@@ -18,15 +18,16 @@ class Mypage(ListView):
             print("request user id: ", user_id)
 
             user = Account.objects.get(id=user_id)
-            rasp = RaspberryPi.objects.filter(user_id=user_id)
+            rasp = RaspberryPi.objects.filter(user_id=user_id).values('ip', 'port')
+            
             if (len(rasp) == 0) :
                 rasp_ip = ''
                 rasp_port = ''
             else :
-                rasp_ip = rasp['rasp_ip']
-                rasp_port = rasp['rasp_port']
+                rasp_ip = rasp[0]['ip']
+                rasp_port = rasp[0]['port']
 
-            return JsonResponse({'code' : 200, 'email' : user.email, 'rasp_ip': rasp_ip, 'rasp_port' : rasp_port}, status=200)
+            return JsonResponse({'email' : user.email, 'rasp_ip': rasp_ip, 'rasp_port' : rasp_port}, status=200)
         except Exception as e :
             print('ClothesInfo get e : ', e)
             return JsonResponse(e, safe=False)
@@ -43,17 +44,16 @@ class Mypage(ListView):
             user = RaspberryPi.objects.filter(user_id=user_id)
 
             if (len(user) > 0) :
-                rasp = RaspberryPi(ip=rasp_ip, port=rasp_port, user_id=user_id)
-                rasp.save()
-                return JsonResponse({'code':201, 'msg': 'create ok'}, status=201)
-
-            else :
                 rasp = RaspberryPi.objects.get(user_id=user_id)
                 rasp.ip = rasp_ip
                 rasp.port = rasp_port
                 rasp.save()
-                return JsonResponse({'code':200, 'msg': 'update ok'}, status=200)
-            
+                return JsonResponse({'msg': 'update ok'}, status=200)
+
+            else :
+                rasp = RaspberryPi(ip=rasp_ip, port=rasp_port, user_id=user_id)
+                rasp.save()
+                return JsonResponse({'msg': 'create ok'}, status=201)
 
         except Exception as e :
-            return JsonResponse({'code':400, 'msg': e}, status=400)
+            return JsonResponse({'msg': e}, status=400)

@@ -49,7 +49,7 @@ class ClothesInfo(ListView):
                 closet_form = User_Closet(user_id=request.user.id, clothes_id=clothes.id) # user_closet db에 (user id, clothes id) 저장
                 closet_form.save()
 
-                return JsonResponse({'code':201, 'msg': 'save ok'}, status=201)
+                return JsonResponse({'msg': 'save ok'}, status=201)
 
             if(len(class_arr) == 4): # IN/OUT update
                 clothes = Clothes_category.objects.filter(color=color, pattern=pattern, category=category) # 옷장 camera가 옷을 분석한 결과와 일치하는 옷 찾기
@@ -87,9 +87,9 @@ class ClothesInfo(ListView):
 
                 transaction.savepoint_commit(sid)
 
-                return JsonResponse({'code':201, 'msg': 'status update ok'}, status=201)
+                return JsonResponse({'msg': 'status update ok'}, status=200)
 
         except Exception as e :
             print('clothesInfo e : ', e)
             transaction.savepoint_rollback(sid)
-            return JsonResponse({'code':400, 'msg': e}, status=400)
+            return JsonResponse({'msg': e}, status=400)

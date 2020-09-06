@@ -50,7 +50,7 @@ def signup(request, format=None):
 
             if myuser: # 이미 등록된 email이라면 회원가입 불가
                 print("duplicated email")
-                return JsonResponse({'code':400, 'msg':'duplicated email'}, status=201)
+                return JsonResponse({'msg':'duplicated email'}, status=400)
             else : 
                 if(email and password and username and sex) : 
                     user = Account.objects.create(
@@ -62,7 +62,7 @@ def signup(request, format=None):
                         platform=0
                     )
                 else :
-                    return JsonResponse({'code':400, 'msg':'input none'}, status=200)
+                    return JsonResponse({'msg':'input none'}, status=400)
 
                     current_site = get_current_site(request)
                     domain = current_site.domain
@@ -76,17 +76,17 @@ def signup(request, format=None):
                     email.send()
 
                     print("signup success and send email")
-                    return JsonResponse({'code':201, 'msg':'signup success'}, status=201)
+                    return JsonResponse({'msg':'signup success'}, status=201)
 
         except KeyError:
-            return JsonResponse({'code':400, 'msg':'INVALID KEY'}, status=201)
+            return JsonResponse({'msg':'INVALID KEY'}, status=400)
         except TypeError:
-            return JsonResponse({"code":400, 'msg':'INVALID_TYPE'}, status=201)
+            return JsonResponse({'msg':'INVALID_TYPE'}, status=400)
         except ValidationError:
-            return JsonResponse({'code':400, 'msg':'VALIDATION ERROR'}, status=201)
+            return JsonResponse({'msg':'VALIDATION ERROR'}, status=400)
         except Exception as e:
             print('signup post e : ', e)
-            return JsonResponse({'code':400, 'msg':'server error'}, status=201)
+            return JsonResponse({'msg':'server error'}, status=400)
 
 def login(request, format=None): 
     try :
@@ -104,13 +104,13 @@ def login(request, format=None):
                         print("user is_active turns True")
                         token = jwt.encode({'user':user.id}, SECRET_KEY['secret'], SECRET_KEY['algorithm']).decode('UTF-8')
                         print("token = ", token)
-                        return JsonResponse({'code':200, 'msg':'login success', 'name' : user.username, 'token':token}, status=200) # login 시 token 발급
-                    return JsonResponse({'code':0, 'msg':'not activated account'}, status=200) # email 활성화 되지 않음
-                return JsonResponse({'code':1, 'msg':'password incorrect'}, status=200) # email에 매칭된 pw가 틀림
-            return JsonResponse({'code':2, 'msg':'not my user'}, status=200) # 해당 email이 db에 없음
+                        return JsonResponse({'msg':'login success', 'name' : user.username, 'token':token}, status=200) # login 시 token 발급
+                    return JsonResponse({'code':0, 'msg':'not activated account'}, status=401) # email 활성화 되지 않음
+                return JsonResponse({'code':1, 'msg':'password incorrect'}, status=400) # email에 매칭된 pw가 틀림
+            return JsonResponse({'code':2, 'msg':'not my user'}, status=400) # 해당 email이 db에 없음
     except Exception as e :
         print('login e : ', e)
-        return JsonResponse({'code':400, 'msg':e}, status=400)
+        return JsonResponse({'msg':e}, status=400)
 
 def kakao_login(request, format=None): # 앱연동 테스트 해보기, get 넣어주기
     try :
@@ -120,12 +120,12 @@ def kakao_login(request, format=None): # 앱연동 테스트 해보기, get 넣�
             email = request.POST.get('email', '')
             result = social_login(platform=platform, uid=uid, email=email) # social_login 파일에서 처리
             if(result == False): # uid or email 길이가 0 일 때
-                return JsonResponse({'code':400, 'msg':'login fail', 'token':''}, status=200) # 소셜로그인 실패(정보가 안넘어왔을 경우)
+                return JsonResponse({'msg':'login fail', 'token':''}, status=400) # 소셜로그인 실패(정보가 안넘어왔을 경우)
             print("token : ", result['token'])
-            return JsonResponse({'code':200, 'msg':'login success', 'name' : result['name'], 'token':result['token']}, status=200) # 소셜로그인 성공
+            return JsonResponse({'msg':'login success', 'name' : result['name'], 'token':result['token']}, status=200) # 소셜로그인 성공
     except Exception as e :
         print('kakao_login e :', e)
-        return JsonResponse({'code':400, 'msg':e}, status=400)
+        return JsonResponse({'msg':e}, status=400)
 
 def google_login(request, format=None):
     try :
@@ -135,11 +135,11 @@ def google_login(request, format=None):
             email = request.POST.get('email', '')
             result = social_login(platform=platform, uid=uid, email=email)
             if(result == False):
-                return JsonResponse({'code':400, 'msg':'login fail', 'token':'token fail'}, status=200) # 소셜로그인 실패(정보가 안넘어왔을 경우)
-            return JsonResponse({'code':200, 'msg':'login success', 'name' : result['name'], 'token':result['token']}, status=200) # 소셜로그인 성공
+                return JsonResponse({'msg':'login fail', 'token':'token fail'}, status=400) # 소셜로그인 실패(정보가 안넘어왔을 경우)
+            return JsonResponse({'msg':'login success', 'name' : result['name'], 'token':result['token']}, status=200) # 소셜로그인 성공
     except Exception as e :
         print('google_login e : ', e)
-        return JsonResponse({'code':400, 'msg':e}, status=400)
+        return JsonResponse({'msg':e}, status=400)
 
 
 # logout 시에는 android 앱에서 토큰을 더이상 넘겨주지 않으면 됨.
@@ -154,13 +154,13 @@ class Activate(View):
                 user.is_active = True
                 user.save()
                 return redirect(EMAIL['REDIRECT_PAGE'])
-            return JsonResponse({'code':401, 'msg':'auth fail'}, status=200)
+            return JsonResponse({'msg':'auth fail'}, status=401)
 
         except ValidationError:
-            return JsonResponse({'code':400, 'msg':'TYPE ERROR'}, status=200)
+            return JsonResponse({'msg':'TYPE ERROR'}, status=400)
         except KeyError:
             print("class Activate key error")
-            return JsonResponse({'code':400, 'msg':'KEY ERROR'}, status=200)
+            return JsonResponse({'msg':'KEY ERROR'}, status=400)
 
 def email_verify(request):
     try :
