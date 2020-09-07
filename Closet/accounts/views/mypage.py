@@ -39,6 +39,7 @@ class Mypage(ListView):
         try : 
             user_id = request.user.id
             print("request user id: ", user_id)
+            token = request.headers.get("Authorizations", None)
 
             rasp_ip = request.POST.get('rasp_ip', '')
             rasp_port = request.POST.get('rasp_port', '') 
@@ -50,14 +51,22 @@ class Mypage(ListView):
                 rasp.ip = rasp_ip
                 rasp.port = rasp_port
                 rasp.save()
-                return JsonResponse({'msg': 'update ok'}, status=200)
 
+                if(token) :
+                    send_result = sendToken(token=token, user_id=user_id, ip=rasp_ip, port=rasp_port)
+                    return JsonResponse({'msg': 'update ok'}, status=200)
+                else : 
+                    return JsonResponse({'msg' : 'update fail'}, status=400)
+                
             else :
                 rasp = RaspberryPi(ip=rasp_ip, port=rasp_port, user_id=user_id)
                 rasp.save()
-                token = request.headers.get("Authorizations", None)
-                send_result = sendToken(token=token, ip=rasp_ip, port=rasp_port)
-                return JsonResponse({'msg': 'create ok'}, status=201)
+                
+                if(token) :
+                    send_result = sendToken(token=token, user_id=user_id, ip=rasp_ip, port=rasp_port)
+                    return JsonResponse({'msg': 'create ok'}, status=201)
+                else : 
+                    return JsonResponse({'msg' : 'create fail'}, status=400)
 
         except Exception as e :
             return JsonResponse({'msg': e}, status=400)
