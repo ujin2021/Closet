@@ -46,24 +46,20 @@ class Mypage(ListView):
 
             user = RaspberryPi.objects.filter(user_id=user_id)
 
-            if (len(user) > 0) :
+            if (len(user) > 0) : # rasp 정보를 update할 때 -> 이때도 ip, port가 정확한지 확인해봐야 함. 같은 토큰을 다시 보내도 상관없는지?
                 rasp = RaspberryPi.objects.get(user_id=user_id)
                 rasp.ip = rasp_ip
                 rasp.port = rasp_port
                 rasp.save()
 
-                if(token) :
-                    send_result = sendToken(token=token, user_id=user_id, ip=rasp_ip, port=rasp_port)
-                    return JsonResponse({'msg': 'update ok'}, status=200)
-                else : 
-                    return JsonResponse({'msg' : 'update fail'}, status=400)
+                return JsonResponse({'msg': 'update ok'}, status=200)
                 
-            else :
-                rasp = RaspberryPi(ip=rasp_ip, port=rasp_port, user_id=user_id)
-                rasp.save()
+            else : # rasp 정보를 처음 등록할 때 -> rasp 로 token 전송
+                send_result = sendToken(token=token, ip=rasp_ip, port=rasp_port) # rasp 로 토큰 전송하는 함수
                 
-                if(token) :
-                    send_result = sendToken(token=token, user_id=user_id, ip=rasp_ip, port=rasp_port)
+                if(send_result) : # 토큰이 라즈베리파이에게 잘 보내지면(ip, port번호가 정확하면)
+                    rasp = RaspberryPi(ip=rasp_ip, port=rasp_port, user_id=user_id)
+                    rasp.save()
                     return JsonResponse({'msg': 'create ok'}, status=201)
                 else : 
                     return JsonResponse({'msg' : 'create fail'}, status=400)

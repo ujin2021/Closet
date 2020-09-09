@@ -1,13 +1,12 @@
 import socket
 from .models import RaspberryPi
 
-def sendToken(token, user_id, ip, port) :
+def sendToken(token, ip, port) :
+    print(f'token : {token}, ip : {ip}, port : {port}')
+    port = int(port)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try :
-        print(f'token : {token}, user_id : {user_id}, ip : {ip}, port : {port}')
-        port = int(port)
-
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+        sock.settimeout(0.5) # 후속 소켓 연산에서 timeout 설정한 시간을 넘어가면 exception 발생
         sock.connect((ip, port))
         print('After connect success')
 
@@ -19,12 +18,8 @@ def sendToken(token, user_id, ip, port) :
 
         sock.close()
 
-        rasp = RaspberryPi.objects.get(ip=ip, port=port, user_id=user_id)
-        rasp.status = 1
-        rasp.save()
-
         return True
-        
+
     except Exception as e :
         print('rasp_socket e: ', e)
         return False

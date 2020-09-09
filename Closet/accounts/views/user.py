@@ -51,32 +51,29 @@ def signup(request, format=None):
             if myuser: # 이미 등록된 email이라면 회원가입 불가
                 print("duplicated email")
                 return JsonResponse({'msg':'duplicated email'}, status=400)
-            else : 
-                if(email and password and username and sex) : 
-                    user = Account.objects.create(
-                        email = email,
-                        password=password,
-                        username=username,
-                        is_active=False,
-                        sex=sex,
-                        platform=0
-                    )
-                else :
-                    return JsonResponse({'msg':'input none'}, status=400)
+            else :
+                user = Account.objects.create(
+                    email = email,
+                    password=password,
+                    username=username,
+                    is_active=False,
+                    sex=sex,
+                    platform=0
+                )
 
-                    current_site = get_current_site(request)
-                    domain = current_site.domain
-                    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-                    token = account_activation_token.make_token(user)
+                current_site = get_current_site(request)
+                domain = current_site.domain
+                uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+                token = account_activation_token.make_token(user)
 
-                    mail_title = "ICE CLOSET 이메일 인증"
-                    message_data = message(domain, uidb64, token)
-                    mail_to = email
-                    email = EmailMessage(mail_title, message_data, to=[mail_to])
-                    email.send()
+                mail_title = "ICE CLOSET 이메일 인증"
+                message_data = message(domain, uidb64, token)
+                mail_to = email
+                email = EmailMessage(mail_title, message_data, to=[mail_to])
+                email.send()
 
-                    print("signup success and send email")
-                    return JsonResponse({'msg':'signup success'}, status=201)
+                print("signup success and send email")
+                return JsonResponse({'msg':'signup success'}, status=201)
 
         except KeyError:
             return JsonResponse({'msg':'INVALID KEY'}, status=400)
@@ -118,7 +115,14 @@ def kakao_login(request, format=None): # 앱연동 테스트 해보기, get 넣�
             platform = 1
             uid = request.POST.get('uid', '')
             email = request.POST.get('email', '')
-            result = social_login(platform=platform, uid=uid, email=email) # social_login 파일에서 처리
+            sex = request.POST.get('sex', '')
+
+            if(sex == 'MALE') :
+                sex = 'M'
+            else : 
+                sex = 'F'
+
+            result = social_login(platform=platform, uid=uid, email=email, sex=sex) # social_login 파일에서 처리
             if(result == False): # uid or email 길이가 0 일 때
                 return JsonResponse({'msg':'login fail', 'token':''}, status=400) # 소셜로그인 실패(정보가 안넘어왔을 경우)
             print("token : ", result['token'])
@@ -133,7 +137,14 @@ def google_login(request, format=None):
             platform = 2
             uid = request.POST.get('uid', '')
             email = request.POST.get('email', '')
-            result = social_login(platform=platform, uid=uid, email=email)
+            sex = request.POST.get('sex', '')
+
+            if(sex == 'MALE') :
+                sex = 'M'
+            else : 
+                sex = 'F'
+
+            result = social_login(platform=platform, uid=uid, email=email, sex=sex)
             if(result == False):
                 return JsonResponse({'msg':'login fail', 'token':'token fail'}, status=400) # 소셜로그인 실패(정보가 안넘어왔을 경우)
             return JsonResponse({'msg':'login success', 'name' : result['name'], 'token':result['token']}, status=200) # 소셜로그인 성공

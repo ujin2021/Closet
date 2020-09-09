@@ -22,7 +22,6 @@ class RaspberryPi(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE, null=True, blank=True)
     ip = models.CharField(max_length=50, unique=True)
     port = models.CharField(max_length=10)
-    status = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'raspberry_pi'
