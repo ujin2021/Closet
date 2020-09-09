@@ -15,7 +15,7 @@ def social_login(platform, uid, email, sex):
 
     myuser = Account.objects.filter(email=email)
 
-    if myuser : # 같은 email주소가 있다면(소셜로그인으로 로그인 한 적 있다면)
+    if myuser : # 같은 email주소가 있다면(소셜로그인으로 로그인 한 적 있다면 or 일반 회원가입한 이메일 도메인과 같으면)
         pass # db저장 필요없다
     else: # 소셜로그인이 처음이면 -> uid 저장 + user info 저장
         form = Account(platform=platform, email=email, password=uid, is_active=True, username=username, sex=sex)
