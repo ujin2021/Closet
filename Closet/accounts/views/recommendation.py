@@ -2,6 +2,7 @@ from ..models import *
 from ..serializers import *
 from ..my_settings import SECRET_KEY, EMAIL, LEVEL, CATEGORY
 from ..tokenCheck import *
+from ..recommendation_algorithm import recommendation
 from django.views.generic import ListView
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
@@ -45,8 +46,9 @@ class Recommendation(ListView) :
                 weather_clothes = LEVEL[1]
 
             # 사용자의 옷 obj을 모두가져옴
-            user_clothes_obj = User_Closet.objects.select_related('clothes').filter(user_id=user_id, clothes__status=1, clothes__category__in=weather_clothes).values("frequency", "clothes__category", "clothes__color", "clothes__pattern")
-
+            user_clothes_obj = User_Closet.objects.select_related('clothes').filter(user_id=user_id, clothes__status=1, 
+            clothes__category__in=weather_clothes).values("frequency", "clothes__category", "clothes__color", "clothes__pattern", "clothes__id")
+            print('user_clothes_obj', user_clothes_obj)
             for obj in user_clothes_obj :
                 if (obj['clothes__color'] == color) :
                     filtering[CATEGORY[obj['clothes__category']]].append(f'{obj["clothes__color"]}_{obj["clothes__pattern"]}_{obj["clothes__category"]}')
@@ -55,7 +57,19 @@ class Recommendation(ListView) :
                     filtering[CATEGORY[obj['clothes__category']]+'_df'].append(f'{obj["clothes__color"]}_{obj["clothes__pattern"]}_{obj["clothes__category"]}')
                     filtering_freq[CATEGORY[obj['clothes__category']]+'_df'].append(obj["frequency"])
             
-            print(f'filtering : {filtering}, filtering_freq : {filtering_freq}, sex : {sex}, hashtag : {hashtag}, weather : {weather}')
+            recom_result = recommendation(filtering, filtering_freq, sex, hashtag, weather) # 이것들을 찾아서 media url 전송해주기
+            print('recom_result', recom_result)
+
+            # android 에 media url 보내주고, 추천된 옷 
+            clo_image = []
+            for clo_set in recom_result :
+                tmp = []
+                for clo in clo_set :
+                    clo_spl = clo.split('_')
+                    clothes = User_Closet.objects.select_related('clothes').filter(user_id=user_id, clothes__status=1, 
+                    clothes__color=clo_spl[0], clothes__pattern=clo_spl[1], clothes__category=clo_spl[2]).values("clothes__id", "clothes__image")
+                    print('clothes image: ', clothes) # clothes image:  <QuerySet [{'clothes__id': 55, 'clothes__image': '2020/09/02/14.jpg'}]>
+                    # tmp.append(clothes.)
 
             return JsonResponse({'msg' : 'ok'}, status = 200)
             # android 로 옷세트들({'top' : 'top_image_url', 'bottom' : 'bottom_image_url' ... })

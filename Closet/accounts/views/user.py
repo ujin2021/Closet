@@ -138,6 +138,11 @@ def google_login(request, format=None):
             uid = request.POST.get('uid', '')
             email = request.POST.get('email', '')
             sex = request.POST.get('sex', '')
+
+            if(sex == 'Male') :
+                sex = 'M'
+            elif(sex == 'Female'): 
+                sex = 'F'
             
             if(len(sex) == 0) :
                 sex = 'N' # google에서는 성별을 가져올 수 없기때문에 일단은 N으로 표시
@@ -148,11 +153,11 @@ def google_login(request, format=None):
             else : # 나중에 성별 입력이 들어왔을 때
                 token = request.headers.get("Authorizations", None)
                 token_payload = jwt.decode(token, SECRET_KEY['secret'], SECRET_KEY['algorithm'])
-                user = Account.objects.get(id=token_payload['user']) # 이부분
+                user = Account.objects.get(id=token_payload['user']) 
                 print(f'token : {token}, sex : {sex}, username : {user.username}')
                 user.sex = sex
                 user.save()
-                return JsonResponse({'msg':'update success', 'name' : user.username, 'sex' : sex, 'token' : token}, status=200)
+                return JsonResponse({'msg':'update success', 'sex' : sex}, status=200)
     except Exception as e :
         print('google_login e : ', e)
         return JsonResponse({'msg':e}, status=400)
