@@ -4,7 +4,8 @@ from django.db import models
 class Account(models.Model):
     SEX_CHOICES = (
         ('F', 'Female',),
-        ('M', 'Male',)
+        ('M', 'Male',),
+        ('N', 'None')
     )
     email = models.EmailField(max_length=100, unique=True) # email 겸 id
     password = models.CharField(max_length=200, null=True) # social login 시 uid

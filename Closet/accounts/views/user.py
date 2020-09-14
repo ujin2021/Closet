@@ -101,7 +101,7 @@ def login(request, format=None):
                         print("user is_active turns True")
                         token = jwt.encode({'user':user.id}, SECRET_KEY['secret'], SECRET_KEY['algorithm']).decode('UTF-8')
                         print("token = ", token)
-                        return JsonResponse({'msg':'login success', 'name' : user.username, 'token':token}, status=200) # login 시 token 발급
+                        return JsonResponse({'msg':'login success', 'name' : user.username, 'sex' : user.sex, 'token':token}, status=200) # login 시 token 발급
                     return JsonResponse({'code':0, 'msg':'not activated account'}, status=401) # email 활성화 되지 않음
                 return JsonResponse({'code':1, 'msg':'password incorrect'}, status=400) # email에 매칭된 pw가 틀림
             return JsonResponse({'code':2, 'msg':'not my user'}, status=400) # 해당 email이 db에 없음
@@ -126,7 +126,7 @@ def kakao_login(request, format=None): # 앱연동 테스트 해보기, get 넣�
             if(result == False): # uid or email 길이가 0 일 때
                 return JsonResponse({'msg':'login fail', 'token':''}, status=400) # 소셜로그인 실패(정보가 안넘어왔을 경우)
             print("token : ", result['token'])
-            return JsonResponse({'msg':'login success', 'name' : result['name'], 'token':result['token']}, status=200) # 소셜로그인 성공
+            return JsonResponse({'msg':'login success', 'name' : result['name'], 'sex' : sex, 'token':result['token']}, status=200) # 소셜로그인 성공
     except Exception as e :
         print('kakao_login e :', e)
         return JsonResponse({'msg':e}, status=400)
@@ -138,16 +138,21 @@ def google_login(request, format=None):
             uid = request.POST.get('uid', '')
             email = request.POST.get('email', '')
             sex = request.POST.get('sex', '')
-
-            if(sex == 'MALE') :
-                sex = 'M'
-            else : 
-                sex = 'F'
-
-            result = social_login(platform=platform, uid=uid, email=email, sex=sex)
-            if(result == False):
-                return JsonResponse({'msg':'login fail', 'token':'token fail'}, status=400) # 소셜로그인 실패(정보가 안넘어왔을 경우)
-            return JsonResponse({'msg':'login success', 'name' : result['name'], 'token':result['token']}, status=200) # 소셜로그인 성공
+            
+            if(len(sex) == 0) :
+                sex = 'N' # google에서는 성별을 가져올 수 없기때문에 일단은 N으로 표시
+                result = social_login(platform=platform, uid=uid, email=email, sex=sex) 
+                if(result == False):
+                    return JsonResponse({'msg':'login fail', 'token':''}, status=400) # 소셜로그인 실패(정보가 안넘어왔을 경우)
+                return JsonResponse({'msg':'login success', 'name' : result['name'], 'sex' : 'N', 'token' : result['token']}, status=200) # 소셜로그인 성공
+            else : # 나중에 성별 입력이 들어왔을 때
+                token = request.headers.get("Authorizations", None)
+                token_payload = jwt.decode(token, SECRET_KEY['secret'], SECRET_KEY['algorithm'])
+                user = Account.objects.get(id=token_payload['user']) # 이부분
+                print(f'token : {token}, sex : {sex}, username : {user.username}')
+                user.sex = sex
+                user.save()
+                return JsonResponse({'msg':'update success', 'name' : user.username, 'sex' : sex, 'token' : token}, status=200)
     except Exception as e :
         print('google_login e : ', e)
         return JsonResponse({'msg':e}, status=400)
