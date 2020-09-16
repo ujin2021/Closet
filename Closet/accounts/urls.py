@@ -10,5 +10,6 @@ urlpatterns = [
     path('email-verify/', user.email_verify),
     path('clothes_info/', clothes_info.ClothesInfo.as_view()), # 옷 정보 받기, IN/OUT check
     path('recommendation/', recommendation.Recommendation.as_view()), # 옷 추천 리스트
-    path('mypage/', mypage.Mypage.as_view()) # my 정보들 보내준다
+    path('mypage/', mypage.Mypage.as_view()), # my 정보들 보내준다
+    # 옷 추천 해준 3세트 중 한세트를 선택했을 때 세트 정보 보내기
 ]

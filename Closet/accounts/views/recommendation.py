@@ -11,6 +11,8 @@ from django.core.exceptions import ValidationError
 from datetime import datetime
 now = datetime.now()
 
+media_url = '13.124.208.47:8000/media/'
+
 # https://gist.github.com/ujin2021/94df639614dbecff24325787185481df -> 옷 category 
 # select_related -> db성능 개선        
 class Recommendation(ListView) :
@@ -67,12 +69,11 @@ class Recommendation(ListView) :
                 for clo in clo_set :
                     clo_spl = clo.split('_')
                     clothes = User_Closet.objects.select_related('clothes').filter(user_id=user_id, clothes__status=1, 
-                    clothes__color=clo_spl[0], clothes__pattern=clo_spl[1], clothes__category=clo_spl[2]).values("clothes__id", "clothes__image")
-                    print('clothes image: ', clothes) # clothes image:  <QuerySet [{'clothes__id': 55, 'clothes__image': '2020/09/02/14.jpg'}]>
-                    # tmp.append(clothes.)
-
-            return JsonResponse({'msg' : 'ok'}, status = 200)
-            # android 로 옷세트들({'top' : 'top_image_url', 'bottom' : 'bottom_image_url' ... })
+                    clothes__color=clo_spl[0], clothes__pattern=clo_spl[1], clothes__category=clo_spl[2]).values("clothes__image")
+                    tmp.append(media_url + clothes[0]['clothes__image'])
+                clo_image.append(tmp)
+            print('clo_image : ', clo_image)
+            return JsonResponse({'msg' : 'recommend result', 'media_url' : clo_image}, status = 200)
             
         except Exception as e : 
             print('Recommendation e : ', e)

@@ -139,18 +139,24 @@ def google_login(request, format=None):
             email = request.POST.get('email', '')
             sex = request.POST.get('sex', '')
 
-            if(sex == 'Male') :
-                sex = 'M'
-            elif(sex == 'Female'): 
-                sex = 'F'
-            
-            if(len(sex) == 0) :
-                sex = 'N' # google에서는 성별을 가져올 수 없기때문에 일단은 N으로 표시
-                result = social_login(platform=platform, uid=uid, email=email, sex=sex) 
-                if(result == False):
-                    return JsonResponse({'msg':'login fail', 'token':''}, status=400) # 소셜로그인 실패(정보가 안넘어왔을 경우)
-                return JsonResponse({'msg':'login success', 'name' : result['name'], 'sex' : 'N', 'token' : result['token']}, status=200) # 소셜로그인 성공
-            else : # 나중에 성별 입력이 들어왔을 때
+            if(len(sex) == 0) : # 성별의 길이는 0(그냥 로그인했을 때)
+                myuser = Account.objects.filter(email=email)
+                if(len(myuser) > 0) : # db에 저장되어있고 성별의 길이가 0이다 -> 성별을 선택했었다
+                    print('myuser : ', myuser)
+                    token = jwt.encode({'user':myuser[0].id}, SECRET_KEY['secret'], SECRET_KEY['algorithm']).decode('UTF-8')
+                    return JsonResponse({'msg':'login success', 'name' : myuser[0]['username'], 'sex' : myuser[0]['sex'], 'token' : token}, status=200)
+                else: # db에 저장되어 있지 않다(처음 로그인) -> 토큰과 성별 N 을 보낸다.
+                    sex = 'N' # google에서는 성별을 가져올 수 없기때문에 일단은 N으로 표시
+                    result = social_login(platform=platform, uid=uid, email=email, sex=sex) 
+                    if(result == False):
+                        return JsonResponse({'msg':'login fail', 'token':''}, status=400) # 소셜로그인 실패(정보가 안넘어왔을 경우)
+                    return JsonResponse({'msg':'login success', 'name' : result['name'], 'sex' : 'N', 'token' : result['token']}, status=200) # 소셜로그인 성공
+            else : # 나중에 성별 입력이 들어왔을 때(처음 등록할 때만 길이가 0이 아님) -> 성별만 업데이트 해야함
+                if(sex == 'Male') :
+                    sex = 'M'
+                elif(sex == 'Female'): 
+                    sex = 'F'
+
                 token = request.headers.get("Authorizations", None)
                 token_payload = jwt.decode(token, SECRET_KEY['secret'], SECRET_KEY['algorithm'])
                 user = Account.objects.get(id=token_payload['user']) 
