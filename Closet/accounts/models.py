@@ -48,22 +48,26 @@ class User_Closet(models.Model):
         db_table = 'user_closet'
 
 
-# 머신러닝에서 추천해준 리스트들(이것들은 다시 추천해주면 안됨)
+# 머신러닝에서 추천해준 옷 세트 리스트들(이것들은 일주일 안에 다시 추천해주면 안됨)
+# http://xe.issro.net/MySQL/299 date 빼기 관련(일주일 지나면 삭제)
 class Recommendation(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
-    top = models.ForeignKey(Clothes_category, related_name='rec_top', on_delete=models.CASCADE)
-    bottom = models.ForeignKey(Clothes_category, related_name='rec_bottom',on_delete=models.CASCADE)
-    outer = models.ForeignKey(Clothes_category, related_name='rec_outer',on_delete=models.CASCADE)
-    
+    top = models.ForeignKey(Clothes_category, related_name='rec_top', on_delete=models.CASCADE, null=True)
+    bottom = models.ForeignKey(Clothes_category, related_name='rec_bottom',on_delete=models.CASCADE, null=True)
+    outer = models.ForeignKey(Clothes_category, related_name='rec_outer',on_delete=models.CASCADE, null=True)
+    dress = models.ForeignKey(Clothes_category, related_name='rec_dress', on_delete=models.CASCADE, default=True, null=True)
+    recommend_at = models.DateField(auto_now=True) # insert 될때, status 바뀔때(추천금지->추천가능) 자동으로 date update 되도록
+
     class Meta:
         db_table = 'recommendation'
 
 # 추천리스트 중 사용자가 입은 옷 세트
 class Frequency_Fashion(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
-    top = models.ForeignKey(Clothes_category, related_name='fre_top', on_delete=models.CASCADE)
-    bottom = models.ForeignKey(Clothes_category, related_name='fre_bottom', on_delete=models.CASCADE)
-    outer = models.ForeignKey(Clothes_category, related_name='fre_outer', on_delete=models.CASCADE)
-    
+    top = models.ForeignKey(Clothes_category, related_name='fre_top', on_delete=models.CASCADE, null=True)
+    bottom = models.ForeignKey(Clothes_category, related_name='fre_bottom', on_delete=models.CASCADE, null=True)
+    outer = models.ForeignKey(Clothes_category, related_name='fre_outer', on_delete=models.CASCADE, null=True)
+    dress = models.ForeignKey(Clothes_category, related_name='fre_dress', on_delete=models.CASCADE, default=True, null=True)
+
     class Meta:
         db_table = 'frequency_fashion'

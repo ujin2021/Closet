@@ -15,7 +15,7 @@ media_url = '13.124.208.47:8000/media/'
 
 # https://gist.github.com/ujin2021/94df639614dbecff24325787185481df -> 옷 category 
 # select_related -> db성능 개선        
-class Recommendation(ListView) :
+class ClothesRecommendation(ListView) :
     @LoginConfirm
     def post(self, request) : 
         try :
@@ -62,17 +62,38 @@ class Recommendation(ListView) :
             recom_result = recommendation(filtering, filtering_freq, sex, hashtag, weather) # 이것들을 찾아서 media url 전송해주기
             print('recom_result', recom_result)
 
-            # android 에 media url 보내주고, 추천된 옷 
-            clo_image = []
-            for clo_set in recom_result :
+            # android 에 media url 보내주고, 추천된 옷 db에 저장하기 
+            clo_image = {}
+            for set_idx in range(len(recom_result)) :
+                top_id, bottom_id, outer_id, dress_id = '', '', '', ''
                 tmp = []
-                for clo in clo_set :
+                for clo in recom_result[set_idx] :
                     clo_spl = clo.split('_')
                     clothes = User_Closet.objects.select_related('clothes').filter(user_id=user_id, clothes__status=1, 
-                    clothes__color=clo_spl[0], clothes__pattern=clo_spl[1], clothes__category=clo_spl[2]).values("clothes__image")
+                    clothes__color=clo_spl[0], clothes__pattern=clo_spl[1], clothes__category=clo_spl[2]).values("clothes__id", "clothes__image")
                     tmp.append(media_url + clothes[0]['clothes__image'])
-                clo_image.append(tmp)
+                    
+                    cate = CATEGORY[clo_spl[2]] # top, bottom, dress, outer
+                    if(cate == 'top') : 
+                        top_id = clothes[0]['clothes__id']
+                    elif(cate == 'bottom') : 
+                        bottom_id = clothes[0]['clothes__id']
+                    elif(cate == 'outer') :
+                        outer_id = clothes[0]['clothes__id']
+                    elif(cate == 'dress') :
+                        dress_id = clothes[0]['clothes__id']
+
+                if(set_idx == 0) :
+                    key = 'first'
+                elif(set_idx == 1) :
+                    key = 'second'
+                elif(set_idx == 2) :
+                    key = 'third'
+                clo_image[key] = tmp
+                form = Recommendation(user_id=user_id, top_id=top_id, bottom_id=bottom_id, outer_id=outer_id, dress_id=dress_id)
+                form.save()
             print('clo_image : ', clo_image)
+
             return JsonResponse({'msg' : 'recommend result', 'media_url' : clo_image}, status = 200)
             
         except Exception as e : 

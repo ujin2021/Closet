@@ -144,7 +144,7 @@ def google_login(request, format=None):
                 if(len(myuser) > 0) : # db에 저장되어있고 성별의 길이가 0이다 -> 성별을 선택했었다
                     print('myuser : ', myuser)
                     token = jwt.encode({'user':myuser[0].id}, SECRET_KEY['secret'], SECRET_KEY['algorithm']).decode('UTF-8')
-                    return JsonResponse({'msg':'login success', 'name' : myuser[0]['username'], 'sex' : myuser[0]['sex'], 'token' : token}, status=200)
+                    return JsonResponse({'msg':'login success', 'name' : myuser[0].username, 'sex' : myuser[0].sex, 'token' : token}, status=200)
                 else: # db에 저장되어 있지 않다(처음 로그인) -> 토큰과 성별 N 을 보낸다.
                     sex = 'N' # google에서는 성별을 가져올 수 없기때문에 일단은 N으로 표시
                     result = social_login(platform=platform, uid=uid, email=email, sex=sex) 
