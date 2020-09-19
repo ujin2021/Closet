@@ -2,7 +2,7 @@ from ..models import *
 from ..serializers import *
 from ..my_settings import SECRET_KEY, EMAIL, LEVEL, CATEGORY
 from ..tokenCheck import *
-from ..recommendation_algorithm import recommendation
+from ..Recommendation_algo.recommendation_algorithm import Recommendation as Rd
 from django.views.generic import ListView
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
@@ -14,7 +14,7 @@ now = datetime.now()
 media_url = '13.124.208.47:8000/media/'
 
 # https://gist.github.com/ujin2021/94df639614dbecff24325787185481df -> 옷 category 
-# select_related -> db성능 개선        
+# 클린코드, 리팩토링 하기      
 class ClothesRecommendation(ListView) :
     @LoginConfirm
     def post(self, request) : 
@@ -58,14 +58,37 @@ class ClothesRecommendation(ListView) :
                 else :
                     filtering[CATEGORY[obj['clothes__category']]+'_df'].append(f'{obj["clothes__color"]}_{obj["clothes__pattern"]}_{obj["clothes__category"]}')
                     filtering_freq[CATEGORY[obj['clothes__category']]+'_df'].append(obj["frequency"])
-            
-            recom_result = recommendation(filtering, filtering_freq, sex, hashtag, weather) # 이것들을 찾아서 media url 전송해주기
+
+            recom_list = Recommendation.objects.select_related('clothes').filter(user_id=user_id).values('top_id', 'bottom_id', 'outer_id', 'outer2_id', 'dress_id', 'neat_id')
+            delete = []
+            for i in recom_list :
+                top_id, bottom_id, outer_id, outer2_id, dress_id, neat_id = i['top_id'], i['bottom_id'], i['outer_id'], i['outer2_id'], i['dress_id'], i['neat_id']
+                clo_id = [top_id, bottom_id, outer_id, outer2_id, dress_id, neat_id]
+                tmp = []
+                for j in clo_id :
+                    if(j):
+                        clo = Clothes_category.objects.filter(id=j)
+                        tmp.append(f'{clo[0].color}_{clo[0].pattern}_{clo[0].category}')
+                delete.append(tuple(tmp))
+            # Rd 에 파라미터값 넣을 때 F대신 'sex' : sex 로 바꿔주기
+            print({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : sex, 'hashtag' : hashtag, 'weather' : weather, 'delete' : delete})
+            result = Rd({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : 'F', 'hashtag' : hashtag, 'weather' : weather, 'delete' : delete})
+            result.result_similarity()
+            recom_result = result.outfit() # result
+
+            for i in range(3) : # tuple을 list로
+                if(type(recom_result[i]) == type('string')):
+                    tmp = []
+                    tmp.append(recom_result[i])
+                    recom_result[i] = tmp
+                else:
+                    recom_result[i] = list(recom_result[i])
             print('recom_result', recom_result)
 
             # android 에 media url 보내주고, 추천된 옷 db에 저장하기 
             clo_image = {}
             for set_idx in range(len(recom_result)) :
-                top_id, bottom_id, outer_id, dress_id = '', '', '', ''
+                top_id, bottom_id, outer_id, outer2_id, dress_id, neat_id = '', '', '', '', '', ''
                 tmp = []
                 for clo in recom_result[set_idx] :
                     clo_spl = clo.split('_')
@@ -79,7 +102,13 @@ class ClothesRecommendation(ListView) :
                     elif(cate == 'bottom') : 
                         bottom_id = clothes[0]['clothes__id']
                     elif(cate == 'outer') :
-                        outer_id = clothes[0]['clothes__id']
+                        if('neatvest' in clo_spl[2]) :
+                            neat_id = clothes[0]['clothes__id']
+                        else:
+                            if(len(str(outer_id)) == 0):
+                                outer_id = clothes[0]['clothes__id']
+                            else:
+                                outer2_id = clothes[0]['clothes__id']
                     elif(cate == 'dress') :
                         dress_id = clothes[0]['clothes__id']
 
@@ -90,11 +119,12 @@ class ClothesRecommendation(ListView) :
                 elif(set_idx == 2) :
                     key = 'third'
                 clo_image[key] = tmp
-                form = Recommendation(user_id=user_id, top_id=top_id, bottom_id=bottom_id, outer_id=outer_id, dress_id=dress_id)
+                form = Recommendation(user_id=user_id, top_id=top_id, bottom_id=bottom_id, outer_id=outer_id, outer2_id=outer2_id, dress_id=dress_id, neat_id=neat_id)
                 form.save()
             print('clo_image : ', clo_image)
 
             return JsonResponse({'msg' : 'recommend result', 'media_url' : clo_image}, status = 200)
+            # return JsonResponse({'msg' : 'recommend result', 'media_url' : 'clo_image'}, status = 200)
             
         except Exception as e : 
             print('Recommendation e : ', e)

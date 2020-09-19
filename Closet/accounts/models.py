@@ -55,6 +55,8 @@ class Recommendation(models.Model):
     top = models.ForeignKey(Clothes_category, related_name='rec_top', on_delete=models.CASCADE, null=True)
     bottom = models.ForeignKey(Clothes_category, related_name='rec_bottom',on_delete=models.CASCADE, null=True)
     outer = models.ForeignKey(Clothes_category, related_name='rec_outer',on_delete=models.CASCADE, null=True)
+    outer2 = models.ForeignKey(Clothes_category, related_name='rec_outer2',on_delete=models.CASCADE, null=True)
+    neat = models.ForeignKey(Clothes_category, related_name='rec_neat',on_delete=models.CASCADE, null=True)
     dress = models.ForeignKey(Clothes_category, related_name='rec_dress', on_delete=models.CASCADE, default=True, null=True)
     recommend_at = models.DateField(auto_now=True) # insert 될때, status 바뀔때(추천금지->추천가능) 자동으로 date update 되도록
 
@@ -67,6 +69,8 @@ class Frequency_Fashion(models.Model):
     top = models.ForeignKey(Clothes_category, related_name='fre_top', on_delete=models.CASCADE, null=True)
     bottom = models.ForeignKey(Clothes_category, related_name='fre_bottom', on_delete=models.CASCADE, null=True)
     outer = models.ForeignKey(Clothes_category, related_name='fre_outer', on_delete=models.CASCADE, null=True)
+    outer2 = models.ForeignKey(Clothes_category, related_name='fre_outer2',on_delete=models.CASCADE, null=True)
+    neat = models.ForeignKey(Clothes_category, related_name='fre_neat',on_delete=models.CASCADE, null=True)
     dress = models.ForeignKey(Clothes_category, related_name='fre_dress', on_delete=models.CASCADE, default=True, null=True)
 
     class Meta:
