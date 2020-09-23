@@ -9,10 +9,10 @@ def sendToken(token, ip, port) :
     port = int(port)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try :
-		#sock.settimeout(0.5) # 후속 소켓 연산에서 timeout 설정한 시간을 넘어가면 exception 발생
+        sock.settimeout(0.5) # 후속 소켓 연산에서 timeout 설정한 시간을 넘어가면 exception 발생
         sock.connect((ip, port))
         print('After connect success')
-
+        
         sock.send(token.encode('utf-8'))
         print('After send token')
 
