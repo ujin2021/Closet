@@ -31,6 +31,7 @@ class ClothesRecommendation(ListView) :
             color = request.POST.get('color', '') 
             weather = int(request.POST.get('weather', ''))
             sex = Account.objects.filter(id=user_id).values('sex')[0]['sex']
+            print(f'hashtag : {hashtag}, color : {color}, weather : {weather}, sex : {sex}')
 
             if(weather >= 27) :
                 weather_clothes = LEVEL[7]
@@ -72,9 +73,11 @@ class ClothesRecommendation(ListView) :
                 delete.append(tuple(tmp))
             # Rd 에 파라미터값 넣을 때 F대신 'sex' : sex 로 바꿔주기
             print({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : sex, 'hashtag' : hashtag, 'weather' : weather, 'delete' : delete})
-            result = Rd({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : 'F', 'hashtag' : hashtag, 'weather' : weather, 'delete' : delete})
+            result = Rd({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : sex, 'hashtag' : hashtag, 'weather' : weather, 'delete' : delete})
             result.result_similarity()
             recom_result = result.outfit() # result
+
+            print('recom_result : ', recom_result)
 
             for i in range(3) : # tuple을 list로
                 if(type(recom_result[i]) == type('string')):

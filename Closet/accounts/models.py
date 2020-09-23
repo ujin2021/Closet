@@ -50,6 +50,7 @@ class User_Closet(models.Model):
 
 # 머신러닝에서 추천해준 옷 세트 리스트들(이것들은 일주일 안에 다시 추천해주면 안됨)
 # http://xe.issro.net/MySQL/299 date 빼기 관련(일주일 지나면 삭제)
+# https://brunch.co.kr/@ddangdol/4
 class Recommendation(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
     top = models.ForeignKey(Clothes_category, related_name='rec_top', on_delete=models.CASCADE, null=True)
