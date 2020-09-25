@@ -129,14 +129,14 @@ class Recommendation:
     # 따라서 코사인 유사도는 0~1 사이의 값을 갖는다
 
     def result_similarity(self):
-        print("hastag: ", self.hashtag)
+        # print("hastag: ", self.hashtag)
         for i in self.clothes.keys():
             result = dict()
             for j in self.clothes[i].columns.tolist():
                 result[j] = (0.4 * self.clothes[i][j][8]) + (
                             0.6 * self.cos_similarity(np.array(self.clothes[i][j].tolist()[:-1]), self.hashtag))
             self.clothes[i] = self.clothes[i].append(result, ignore_index=True)
-            print(self.clothes[i])
+            # print(self.clothes[i])
             if self.sex == 'W':
                 self.clothes[i] = self.clothes[i].drop(self.clothes[i].index[:9])
                 self.clothes[i] = self.clothes[i].T.sort_values(by=[9], ascending=False)

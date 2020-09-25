@@ -81,7 +81,7 @@ class ClothesRecommendation(ListView) :
 
             print('recom_result : ', recom_result)
 
-            for i in range(3) : # result 가 tuple 이라 list로 바꿔준다.
+            for i in range(len(recom_result)) : # result 가 tuple 이라 list로 바꿔준다.
                 if(type(recom_result[i]) == type('string')): # dress같이 하나만 있으면 str이므로 따로 처리해준다.
                     tmp = []
                     tmp.append(recom_result[i])
