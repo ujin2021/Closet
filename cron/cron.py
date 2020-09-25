@@ -1,4 +1,4 @@
-# cron file
+# /home/ubuntu/srv/venv/bin/python3
 import pymysql
 import datetime
 from cron_setting import db

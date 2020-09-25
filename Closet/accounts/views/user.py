@@ -52,28 +52,31 @@ def signup(request, format=None):
                 print("duplicated email")
                 return JsonResponse({'msg':'duplicated email'}, status=400)
             else :
-                user = Account.objects.create(
-                    email = email,
-                    password=password,
-                    username=username,
-                    is_active=False,
-                    sex=sex,
-                    platform=0
-                )
+                if(email and password and username and sex) :
+                    user = Account.objects.create(
+                        email = email,
+                        password=password,
+                        username=username,
+                        is_active=False,
+                        sex=sex,
+                        platform=0
+                    )
 
-                current_site = get_current_site(request)
-                domain = current_site.domain
-                uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-                token = account_activation_token.make_token(user)
+                    current_site = get_current_site(request)
+                    domain = current_site.domain
+                    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+                    token = account_activation_token.make_token(user)
 
-                mail_title = "ICE CLOSET 이메일 인증"
-                message_data = message(domain, uidb64, token)
-                mail_to = email
-                email = EmailMessage(mail_title, message_data, to=[mail_to])
-                email.send()
+                    mail_title = "ICE CLOSET 이메일 인증"
+                    message_data = message(domain, uidb64, token)
+                    mail_to = email
+                    email = EmailMessage(mail_title, message_data, to=[mail_to])
+                    email.send()
 
-                print("signup success and send email")
-                return JsonResponse({'msg':'signup success'}, status=201)
+                    print("signup success and send email")
+                    return JsonResponse({'msg':'signup success'}, status=201)
+                else :
+                    return JsonResponse({'msg' : 'signup failed'}, status=400)
 
         except KeyError:
             return JsonResponse({'msg':'INVALID KEY'}, status=400)
