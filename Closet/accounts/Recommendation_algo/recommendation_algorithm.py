@@ -17,7 +17,7 @@ class Recommendation:
         if user_clothes['weather'] >= 27:
             self.weather = {'weather': user_clothes['weather'],
                             'pan': pd.read_csv(path + "27_fashion.csv").drop(['Unnamed: 0'], axis=1)}
-        elif 26 <= user_clothes['weather'] <= 23:
+        elif 23 <= user_clothes['weather'] <= 26:
             self.weather = {'weather': user_clothes['weather'],
                             'pan': pd.read_csv(path + "26_23_fashion.csv").drop(['Unnamed: 0'], axis=1)}
         elif 20 <= user_clothes['weather'] <= 21:

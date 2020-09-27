@@ -54,6 +54,7 @@ class ClothesRecommendation(ListView) :
             # 모두 가져온 후에 선택한 색과 같으면 cate에, 다른색이면 _df에 넣는다. freq는 따로 넣는다.
             # CATEGORY 는 shortsleeve : top 형식 처럼 되어있음.
             for obj in user_clothes_obj :
+                # print('obj : ', obj)
                 if (obj['clothes__color'] == color) :
                     filtering[CATEGORY[obj['clothes__category']]].append(f'{obj["clothes__color"]}_{obj["clothes__pattern"]}_{obj["clothes__category"]}')
                     filtering_freq[CATEGORY[obj['clothes__category']]].append(obj["frequency"])
@@ -74,12 +75,13 @@ class ClothesRecommendation(ListView) :
                         tmp.append(f'{clo[0].color}_{clo[0].pattern}_{clo[0].category}')
                 delete.append(tuple(tmp))
             
-            print({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : sex, 'hashtag' : hashtag, 'weather' : weather, 'delete' : delete})
+            # print({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : sex, 'hashtag' : hashtag, 'weather' : weather, 'delete' : delete})
             result = Rd({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : sex, 'hashtag' : hashtag, 'weather' : weather, 'delete' : delete})
             result.result_similarity()
             recom_result = result.outfit() # result
 
-            print('recom_result : ', recom_result)
+            if(len(recom_result) == 0) :
+                return JsonResponse({'msg' : 'recommend result', 'media_url' : []}, status = 200)
 
             for i in range(len(recom_result)) : # result 가 tuple 이라 list로 바꿔준다.
                 if(type(recom_result[i]) == type('string')): # dress같이 하나만 있으면 str이므로 따로 처리해준다.
@@ -137,4 +139,47 @@ class ClothesRecommendation(ListView) :
             
         except Exception as e : 
             print('Recommendation e : ', e)
+            return JsonResponse({'msg' : e}, status = 400)
+
+class SelectOne(ListView) :
+    @LoginConfirm
+    def post(self, request) : 
+        try :
+            select = request.POST.get('select', '') 
+            print('select:', select)
+            user_id = request.user.id
+            print('request user id : ', user_id)
+
+            img_list = select.split(',')
+
+            for i in range(len(img_list)) :
+                img_list[i] = img_list[i].replace(media_url, '')
+
+            clothes_obj = Clothes_category.objects.filter(image__in=img_list).values('id', 'category')
+            if(len(clothes_obj) != len(img_list)) :
+                return JsonResponse({'msg' : 'clothes not exist'}, status = 400)
+            print(clothes_obj)
+
+            top_id, bottom_id, outer_id, outer2_id, dress_id, neat_id = '', '', '', '', '', ''
+            for clothes in clothes_obj :
+                clo_id = clothes['id']
+                clo_cate = clothes['category']
+                if(CATEGORY[clo_cate] == 'top') :
+                    top_id = clo_id
+                elif(CATEGORY[clo_cate] == 'bottom') :
+                    bottom_id = clo_id
+                elif(CATEGORY[clo_cate] == 'dress') :
+                    dress_id = clo_id
+                elif(CATEGORY[clo_cate] == 'outer') :
+                    if('neatvest' in clo_cate) :
+                            neat_id = clo_id
+                    elif(len(outer_id) > 0) :
+                        outer2_id = clo_id
+                    else :
+                        outer_id = clo_id
+            result = Frequency_Fashion(user_id=user_id, top_id=top_id, bottom_id=bottom_id, outer_id=outer_id, outer2_id=outer2_id, dress_id=dress_id, neat_id=neat_id)
+            result.save()
+            return JsonResponse({'msg' : 'data store success'}, status = 200)
+        except Exception as e :
+            print('selectOne e : ', e)
             return JsonResponse({'msg' : e}, status = 400)
