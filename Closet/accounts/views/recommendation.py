@@ -28,7 +28,8 @@ class ClothesRecommendation(ListView) :
 
             hashtag = request.POST.get('hashtag', '')
             color = request.POST.get('color', '') 
-            weather = int(request.POST.get('weather', ''))
+            # weather = int(request.POST.get('weather', ''))
+            weather = 4
             sex = Account.objects.filter(id=user_id).values('sex')[0]['sex']
             print(f'hashtag : {hashtag}, color : {color}, weather : {weather}, sex : {sex}')
 
@@ -75,13 +76,10 @@ class ClothesRecommendation(ListView) :
                         tmp.append(f'{clo[0].color}_{clo[0].pattern}_{clo[0].category}')
                 delete.append(tuple(tmp))
             
-            # print({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : sex, 'hashtag' : hashtag, 'weather' : weather, 'delete' : delete})
+            print({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : sex, 'hashtag' : hashtag, 'weather' : weather, 'delete' : delete})
             result = Rd({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : sex, 'hashtag' : hashtag, 'weather' : weather, 'delete' : delete})
             result.result_similarity()
             recom_result = result.outfit() # result
-
-            if(len(recom_result) == 0) :
-                return JsonResponse({'msg' : 'recommend result', 'media_url' : []}, status = 200)
 
             for i in range(len(recom_result)) : # result 가 tuple 이라 list로 바꿔준다.
                 if(type(recom_result[i]) == type('string')): # dress같이 하나만 있으면 str이므로 따로 처리해준다.
