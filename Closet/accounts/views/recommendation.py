@@ -28,8 +28,7 @@ class ClothesRecommendation(ListView) :
 
             hashtag = request.POST.get('hashtag', '')
             color = request.POST.get('color', '') 
-            # weather = int(request.POST.get('weather', ''))
-            weather = 4
+            weather = int(request.POST.get('weather', ''))
             sex = Account.objects.filter(id=user_id).values('sex')[0]['sex']
             print(f'hashtag : {hashtag}, color : {color}, weather : {weather}, sex : {sex}')
 
