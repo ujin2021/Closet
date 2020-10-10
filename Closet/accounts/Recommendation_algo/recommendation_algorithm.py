@@ -74,7 +74,7 @@ class Recommendation:
                                'femi': np.array([0, 0, 1, 0, 0, 0, 0, 0]),
                                'lovely': np.array([0, 0, 0, 1, 0, 0, 0, 0]),
                                'modern': np.array([0, 0, 0, 0, 1, 0, 0, 0]),
-                               'ofice': np.array([0, 0, 0, 0, 0, 1, 0, 0]),
+                               'office': np.array([0, 0, 0, 0, 0, 1, 0, 0]),
                                'simple': np.array([0, 0, 0, 0, 0, 0, 1, 0]),
                                'travel': np.array([0, 0, 0, 0, 0, 0, 0, 1])}
 
@@ -111,7 +111,7 @@ class Recommendation:
                                'simple': np.array([0, 0, 0, 0, 1, 0]),
                                'travel': np.array([0, 0, 0, 0, 0, 1])}
 
-        self.hashtag = self.categories[user_clothes['hashtag']]
+        self.hashtag = self.categories[user_clothes['style']]
         self.complete_outfit = []
 
     def cos_similarity(self, v1, v2):
@@ -157,161 +157,195 @@ class Recommendation:
         if self.weather['weather'] >= 23:
             for i in colors:
                 if i == 'color_top':
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes[i])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom']))]
-                    for j, k in zip(temp['top'], temp['bottom']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0]) / 2, (j, k)))
+                    try:
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes[i])) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom']))]
+                        for j, k in zip(temp['top'], temp['bottom']):
+                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0]) / 2, (j, k)))
+                    except: pass
                 elif i == 'color_bottom':
-                    temp = self.weather['pan'][(self.weather['pan']['bottom'].isin(self.clothes[i])) & (
-                        self.weather['pan']['top'].isin(self.clothes['top']))]
-                    for j, k in zip(temp['top'], temp['bottom']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
+                    try:
+                        temp = self.weather['pan'][(self.weather['pan']['bottom'].isin(self.clothes[i])) & (
+                            self.weather['pan']['top'].isin(self.clothes['top']))]
+                        for j, k in zip(temp['top'], temp['bottom']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
+                    except: pass
                 elif i == 'color_dress':
-                    for j in self.clothes[i].columns.tolist():
-                        self.complete_outfit.append((self.clothes[i][j].values.tolist()[0], (j)))
+                    try:
+                        for j in self.clothes[i].columns.tolist():
+                            self.complete_outfit.append((self.clothes[i][j].values.tolist()[0], (j)))
+                    except: pass
                 else:
                     pass
 
         elif 20 <= self.weather['weather'] <= 22:
             for i in colors:
                 if i == 'color_top':
-                    c1 = self.clothes[i].filter(regex='longsleeve|longshirt')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(c1)) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom']))]
-                    for j, k in zip(temp['top'], temp['bottom']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0]) / 2, (j, k)))
-                    c1 = self.clothes[i].filter(regex='shortsleeve|shortshirt')
-                    b1 = self.clothes['bottom'].filter(regex='skirt|longpants')
-                    temp = self.weather['pan'][
-                        (self.weather['pan']['top'].isin(c1)) & (self.weather['pan']['bottom'].isin(b1)) & (
-                            self.weather['pan']['outer'].isin(self.clothes['outer']))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    del [[c1]]
-                    del [[b1]]
-                    del [[temp]]
-                elif i == 'color_bottom':
-                    c1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                    temp = self.weather['pan'][
-                        (self.weather['pan']['bottom'].isin(self.clothes[i])) & (self.weather['pan']['top'].isin(c1))]
-                    for j, k in zip(temp['top'], temp['bottom']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
-                    c1 = self.clothes['top'].filter(regex='shortsleeve|shortshirt')
-                    b1 = self.clothes[i].filter(regex='skirt|longpants|jogger')
-                    temp = self.weather['pan'][
-                        (self.weather['pan']['top'].isin(c1)) & (self.weather['pan']['bottom'].isin(b1)) & (
-                            self.weather['pan']['outer'].isin(self.clothes['outer']))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes[i][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    del [[c1]]
-                    del [[b1]]
-                    del [[temp]]
-                elif i == 'color_dress':
-                    c1 = self.clothes[i].filter(regex='winshortdress')
-                    for j in c1.columns.tolist():
-                        self.complete_outfit.append((self.clothes[i][j].values.tolist()[0], (j)))
-                    c1 = self.clothes[i].filter(regex='sumlongdress|sumshortdress')
-                    temp = self.weather['pan'][(self.weather['pan']['dress'].isin(c1)) & (
-                        self.weather['pan']['outer'].isin(self.clothes['outer']))]
-                    for j, k in zip(temp['dress'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['outer'][k].values.tolist()[0]) / 2, (j, k)))
-                    del [[c1]]
-                    del [[temp]]
-                elif i == 'color_outer':
-                    c1 = self.clothes['top'].filter(regex='shortsleeve|shortshirt')
-                    b1 = self.clothes['bottom'].filter(regex='skirt|longpants|jogger')
-                    temp = self.weather['pan'][
-                        (self.weather['pan']['top'].isin(c1)) & (self.weather['pan']['bottom'].isin(b1)) & (
-                            self.weather['pan']['outer'].isin(self.clothes[i]))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
-                    if self.sex == 'W':
-                        c1 = self.clothes['dress'].filter(regex='sumlongdress|sumshortdress')
-                        temp = self.weather['pan'][(self.weather['pan']['dress'].isin(c1)) & (
-                            self.weather['pan']['outer'].isin(self.clothes[i]))]
-                        for j, k in zip(temp['dress'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                          self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
+                    try:
+                        c1 = self.clothes[i].filter(regex='longsleeve|longshirt')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(c1)) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom']))]
+                        for j, k in zip(temp['top'], temp['bottom']):
+                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0]) / 2, (j, k)))
+                        c1 = self.clothes[i].filter(regex='shortsleeve|shortshirt')
+                        b1 = self.clothes['bottom'].filter(regex='skirt|longpants')
+                        temp = self.weather['pan'][
+                            (self.weather['pan']['top'].isin(c1)) & (self.weather['pan']['bottom'].isin(b1)) & (
+                                self.weather['pan']['outer'].isin(self.clothes['outer']))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        del [[c1]]
+                        del [[b1]]
+                        del [[temp]]
 
-                    del [[c1]]
-                    del [[b1]]
-                    del [[temp]]
+                    except: pass
+
+                elif i == 'color_bottom':
+                    try:
+                        c1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                        temp = self.weather['pan'][
+                            (self.weather['pan']['bottom'].isin(self.clothes[i])) & (self.weather['pan']['top'].isin(c1))]
+                        for j, k in zip(temp['top'], temp['bottom']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
+                        c1 = self.clothes['top'].filter(regex='shortsleeve|shortshirt')
+                        b1 = self.clothes[i].filter(regex='skirt|longpants|jogger')
+                        temp = self.weather['pan'][
+                            (self.weather['pan']['top'].isin(c1)) & (self.weather['pan']['bottom'].isin(b1)) & (
+                                self.weather['pan']['outer'].isin(self.clothes['outer']))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes[i][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        del [[c1]]
+                        del [[b1]]
+                        del [[temp]]
+
+                    except: pass
+
+                elif i == 'color_dress':
+                    try:
+                        c1 = self.clothes[i].filter(regex='winshortdress')
+                        for j in c1.columns.tolist():
+                            self.complete_outfit.append((self.clothes[i][j].values.tolist()[0], (j)))
+                        c1 = self.clothes[i].filter(regex='sumlongdress|sumshortdress')
+                        temp = self.weather['pan'][(self.weather['pan']['dress'].isin(c1)) & (
+                            self.weather['pan']['outer'].isin(self.clothes['outer']))]
+                        for j, k in zip(temp['dress'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                        self.clothes['outer'][k].values.tolist()[0]) / 2, (j, k)))
+                        del [[c1]]
+                        del [[temp]]
+                        
+                    except: pass
+                
+                elif i == 'color_outer':
+                    try:
+                        c1 = self.clothes['top'].filter(regex='shortsleeve|shortshirt')
+                        b1 = self.clothes['bottom'].filter(regex='skirt|longpants|jogger')
+                        temp = self.weather['pan'][
+                            (self.weather['pan']['top'].isin(c1)) & (self.weather['pan']['bottom'].isin(b1)) & (
+                                self.weather['pan']['outer'].isin(self.clothes[i]))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+                        if self.sex == 'W':
+                            c1 = self.clothes['dress'].filter(regex='sumlongdress|sumshortdress')
+                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(c1)) & (
+                                self.weather['pan']['outer'].isin(self.clothes[i]))]
+                            for j, k in zip(temp['dress'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                            self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
+                        del [[c1]]
+                        del [[b1]]
+                        del [[temp]]
+
+                    except: pass
+
                 else:
                     pass
 
         elif 17 <= self.weather['weather'] <= 19:
             for i in colors:
                 if i == 'color_top':
-                    c1 = self.clothes[i].filter(regex='longsleeve|longshirt')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(c1)) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(self.clothes['outer']))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    c1 = self.clothes[i].filter(regex='longneat')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(c1)) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom']))]
-                    for j, k in zip(temp['top'], temp['bottom']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0]) / 2, (j, k)))
-                    del [[c1]]
-                    del [[temp]]
+                    try:
+                        c1 = self.clothes[i].filter(regex='longsleeve|longshirt')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(c1)) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                    self.weather['pan']['outer'].isin(self.clothes['outer']))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        c1 = self.clothes[i].filter(regex='longneat')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(c1)) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom']))]
+                        for j, k in zip(temp['top'], temp['bottom']):
+                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0]) / 2, (j, k)))
+                        del [[c1]]
+                        del [[temp]]
+
+                    except: pass
 
                 elif i == 'color_bottom':
-                    c1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(c1)) & (
-                        self.weather['pan']['bottom'].isin(self.clothes[i])) & (
-                                                   self.weather['pan']['outer'].isin(self.clothes['outer']))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes[i][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    c1 = self.clothes['top'].filter(regex='longneat')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(c1)) & (
-                        self.weather['pan']['bottom'].isin(self.clothes[i])) & (
-                                                   self.weather['pan']['outer'].isin(self.clothes['outer']))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes[i][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    del [[c1]]
-                    del [[temp]]
+                    try:
+                        c1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(c1)) & (
+                            self.weather['pan']['bottom'].isin(self.clothes[i])) & (
+                                                    self.weather['pan']['outer'].isin(self.clothes['outer']))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes[i][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        c1 = self.clothes['top'].filter(regex='longneat')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(c1)) & (
+                            self.weather['pan']['bottom'].isin(self.clothes[i])) & (
+                                                    self.weather['pan']['outer'].isin(self.clothes['outer']))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes[i][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        del [[c1]]
+                        del [[temp]]
+
+                    except: pass
+                    
                 elif i == 'color_dress':
-                    for j in self.clothes[i].columns.tolist():
-                        self.complete_outfit.append((self.clothes[i][j].values.tolist()[0], (j)))
-                    temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
-                        self.weather['pan']['outer'].isin(self.clothes['outer']))]
-                    for j, k in zip(temp['dress'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['outer'][k].values.tolist()[0]) / 2, (j, k)))
+                    try:
+                        for j in self.clothes[i].columns.tolist():
+                            self.complete_outfit.append((self.clothes[i][j].values.tolist()[0], (j)))
+                        temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
+                            self.weather['pan']['outer'].isin(self.clothes['outer']))]
+                        for j, k in zip(temp['dress'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                        self.clothes['outer'][k].values.tolist()[0]) / 2, (j, k)))
+                    except: pass
+                    
                     del [[temp]]
                 elif i == 'color_outer':
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(self.clothes[i]))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
-                    if self.sex == 'W':
-                        temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                            self.weather['pan']['outer'].isin(self.clothes[i]))]
-                        for j, k in zip(temp['dress'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                          self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
+                    try:
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                    self.weather['pan']['outer'].isin(self.clothes[i]))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+                        if self.sex == 'W':
+                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                self.weather['pan']['outer'].isin(self.clothes[i]))]
+                            for j, k in zip(temp['dress'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                            self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
+                    except: pass
+                    
                     del [[temp]]
                 else:
                     pass
@@ -319,802 +353,844 @@ class Recommendation:
         elif 10 <= self.weather['weather'] <= 16:
             for i in colors:
                 if i == 'color_top':
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes[i])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(self.clothes['outer']))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    if not c1.empty:
-                        b1 = self.clothes[i].filter(regex='longsleeve|longshirt')
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(b1)) & (
+                    try:
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes[i])) & (
                             self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(self.clothes['outer']))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                                    self.weather['pan']['outer'].isin(self.clothes['outer']))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
                             self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0]) / 4,
-                                                         (j, k, l, m)))
-                    del [[c1]]
-                    del [[temp]]
-
-                elif i == 'color_bottom':
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes[i])) & (
-                                                   self.weather['pan']['outer'].isin(self.clothes['outer']))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes[i][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    if not c1.empty:
-                        b1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(b1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes[i])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(self.clothes['outer']))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes[i][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0]) / 4,
-                                                         (j, k, l, m)))
-                    del [[c1]]
-                    del [[temp]]
-
-                elif i == 'color_dress':
-                    temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
-                        self.weather['pan']['outer'].isin(self.clothes['outer']))]
-                    for j, k in zip(temp['dress'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['outer'][k].values.tolist()[0]) / 2, (j, k)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    if not c1.empty:
-                        temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
-                            self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(self.clothes['outer']))]
-                        for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                          self.clothes['outer'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    del [[c1]]
-                    del [[temp]]
-                elif i == 'color_outer':
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(self.clothes[i]))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
-
-                    c1 = self.clothes[i].filter(regex='vest')
-                    if not c1.empty:
-                        b1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                        d1 = self.clothes['outer'].filter(regex='cardigan|jacket')
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(b1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(d1))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes[i][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0]) / 4,
-                                                         (j, k, l, m)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    if not c1.empty:
-                        b1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                        d1 = self.clothes[i].filter(regex='cardigan|jacket')
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(b1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(d1))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
-                    c1 = self.clothes[i].filter(regex='vest')
-                    if not c1.empty:
-                        b1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                        d1 = self.clothes[i].filter(regex='cardigan|jacket')
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(b1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(d1))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes[i][l].values.tolist()[0] +
-                                                          self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
-                    if self.sex == 'W':
-                        temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                            self.weather['pan']['outer'].isin(self.clothes[i]))]
-                        for j, k in zip(temp['dress'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                          self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
-
-                        c1 = self.clothes[i].filter(regex='vest')
-                        if not c1.empty:
-                            b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
-                            for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes[i][k].values.tolist()[0] +
-                                                              self.clothes['outer'][l].values.tolist()[0]) / 3,
-                                                             (j, k, l)))
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
                         c1 = self.clothes['outer'].filter(regex='vest')
                         if not c1.empty:
-                            b1 = self.clothes[i].filter(regex='cardigan|jacket')
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
+                            b1 = self.clothes[i].filter(regex='longsleeve|longshirt')
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(b1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(self.clothes['outer']))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0]) / 4,
+                                                            (j, k, l, m)))
+                        del [[c1]]
+                        del [[temp]]
+
+                    except: pass
+
+                elif i == 'color_bottom':
+                    try:
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
+                            self.weather['pan']['bottom'].isin(self.clothes[i])) & (
+                                                    self.weather['pan']['outer'].isin(self.clothes['outer']))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes[i][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        c1 = self.clothes['outer'].filter(regex='vest')
+                        if not c1.empty:
+                            b1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(b1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes[i])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(self.clothes['outer']))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes[i][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0]) / 4,
+                                                            (j, k, l, m)))
+                        del [[c1]]
+                        del [[temp]]
+                        
+                    except: pass
+
+                elif i == 'color_dress':
+                    try:
+                        temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
+                            self.weather['pan']['outer'].isin(self.clothes['outer']))]
+                        for j, k in zip(temp['dress'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                        self.clothes['outer'][k].values.tolist()[0]) / 2, (j, k)))
+                        c1 = self.clothes['outer'].filter(regex='vest')
+                        if not c1.empty:
+                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
+                                self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(self.clothes['outer']))]
                             for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes['outer'][k].values.tolist()[0] +
-                                                              self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+                                self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                            self.clothes['outer'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        del [[c1]]
+                        del [[temp]]
+                    
+                    except: pass
+
+                elif i == 'color_outer':
+                    try:
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                    self.weather['pan']['outer'].isin(self.clothes[i]))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+
                         c1 = self.clothes[i].filter(regex='vest')
                         if not c1.empty:
-                            b1 = self.clothes[i].filter(regex='cardigan|jacket')
+                            b1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                            d1 = self.clothes['outer'].filter(regex='cardigan|jacket')
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(b1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(d1))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes[i][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0]) / 4,
+                                                            (j, k, l, m)))
+                        c1 = self.clothes['outer'].filter(regex='vest')
+                        if not c1.empty:
+                            b1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                            d1 = self.clothes[i].filter(regex='cardigan|jacket')
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(b1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(d1))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                        c1 = self.clothes[i].filter(regex='vest')
+                        if not c1.empty:
+                            b1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                            d1 = self.clothes[i].filter(regex='cardigan|jacket')
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(b1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(d1))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes[i][l].values.tolist()[0] +
+                                                            self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                        if self.sex == 'W':
                             temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
-                            for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
+                                self.weather['pan']['outer'].isin(self.clothes[i]))]
+                            for j, k in zip(temp['dress'], temp['outer']):
                                 self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes[i][k].values.tolist()[0] +
-                                                              self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+                                                            self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
 
-                    del [[c1]]
-                    del [[b1]]
-                    del [[temp]]
+                            c1 = self.clothes[i].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
+                                for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes[i][k].values.tolist()[0] +
+                                                                self.clothes['outer'][l].values.tolist()[0]) / 3,
+                                                                (j, k, l)))
+                            c1 = self.clothes['outer'].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes[i].filter(regex='cardigan|jacket')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
+                                for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes['outer'][k].values.tolist()[0] +
+                                                                self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+                            c1 = self.clothes[i].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes[i].filter(regex='cardigan|jacket')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
+                                for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes[i][k].values.tolist()[0] +
+                                                                self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+                        del [[c1]]
+                        del [[b1]]
+                        del [[temp]]
+
+                    except: pass
+
                 else:
                     pass
 
         elif 6 <= self.weather['weather'] <= 9:
             for i in colors:
                 if i == 'color_top':
-                    c1 = self.clothes['outer'].filter(regex='coat|parka|rider')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes[i])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(c1))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    b1 = self.clothes['outer'].filter(regex='coat|parka')
-                    d1 = self.clothes[i].filter(regex='longsleeve|longshirt')
-                    if not c1.empty:
+                    try:
+                        c1 = self.clothes['outer'].filter(regex='coat|parka|rider')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes[i])) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                    self.weather['pan']['outer'].isin(c1))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        c1 = self.clothes['outer'].filter(regex='vest')
+                        b1 = self.clothes['outer'].filter(regex='coat|parka')
+                        d1 = self.clothes[i].filter(regex='longsleeve|longshirt')
+                        if not c1.empty:
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(b1))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0]) / 4,
+                                                            (j, k, l, m)))
+                        c1 = self.clothes['outer'].filter(regex='hoodie|cardigan')
+                        b1 = self.clothes['outer'].filter(regex='coat|rider|ma-1')
+                        d1 = self.clothes[i].filter(regex='longsleeve|longshirt')
                         temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
                             self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(b1))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                                    self.weather['pan']['outer'].isin(c1)) & (
+                                                    self.weather['pan']['outer2'].isin(b1))]
+                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
                             self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0]) / 4,
-                                                         (j, k, l, m)))
-                    c1 = self.clothes['outer'].filter(regex='hoodie|cardigan')
-                    b1 = self.clothes['outer'].filter(regex='coat|rider|ma-1')
-                    d1 = self.clothes[i].filter(regex='longsleeve|longshirt')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(c1)) & (
-                                                   self.weather['pan']['outer2'].isin(b1))]
-                    for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0] +
-                                                      self.clothes['outer'][m].values.tolist()[0]) / 4, (j, k, l, m)))
-                    del [[c1]]
-                    del [[b1]]
-                    del [[d1]]
-                    del [[temp]]
-                elif i == 'color_bottom':
-                    c1 = self.clothes['outer'].filter(regex='coat|parka|rider')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes[i])) & (self.weather['pan']['outer'].isin(c1))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes[i][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    b1 = self.clothes['outer'].filter(regex='coat|parka')
-                    d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                    if not c1.empty:
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes[i])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(b1))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes[i][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0]) / 4,
-                                                         (j, k, l, m)))
-                    c1 = self.clothes['outer'].filter(regex='hoodie|cardigan')
-                    b1 = self.clothes['outer'].filter(regex='coat|rider|ma-1')
-                    d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                        self.weather['pan']['bottom'].isin(self.clothes[i])) & (
-                                                   self.weather['pan']['outer'].isin(c1)) & (
-                                                   self.weather['pan']['outer2'].isin(b1))]
-                    for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes[i][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0] +
-                                                      self.clothes['outer'][m].values.tolist()[0]) / 4, (j, k, l, m)))
-                    del [[c1]]
-                    del [[b1]]
-                    del [[d1]]
-                    del [[temp]]
-                elif i == 'color_dress':
-                    c1 = self.clothes['outer'].filter(regex='coat|parka|rider')
-                    temp = self.weather['pan'][
-                        (self.weather['pan']['dress'].isin(self.clothes[i])) & (self.weather['pan']['outer'].isin(c1))]
-                    for j, k in zip(temp['dress'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['outer'][k].values.tolist()[0]) / 2, (j, k)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    b1 = self.clothes['outer'].filter(regex='coat|parka|rider')
-                    if not c1.empty:
-                        temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
-                            self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
-                        for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                          self.clothes['outer'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    del [[c1]]
-                    del [[b1]]
-                    del [[temp]]
-                elif i == 'color_outer':
-                    c1 = self.clothes[i].filter(regex='coat|parka|rider')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(c1))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0] +
+                                                        self.clothes['outer'][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                        del [[c1]]
+                        del [[b1]]
+                        del [[d1]]
+                        del [[temp]]
+                    
+                    except: pass
 
-                    c1 = self.clothes[i].filter(regex='vest')
-                    if not c1.empty:
+                elif i == 'color_bottom':
+                    try:
+                        c1 = self.clothes['outer'].filter(regex='coat|parka|rider')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
+                            self.weather['pan']['bottom'].isin(self.clothes[i])) & (self.weather['pan']['outer'].isin(c1))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes[i][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        c1 = self.clothes['outer'].filter(regex='vest')
                         b1 = self.clothes['outer'].filter(regex='coat|parka')
                         d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(b1))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes[i][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0]) / 4,
-                                                         (j, k, l, m)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    if not c1.empty:
-                        b1 = self.clothes[i].filter(regex='coat|parka')
-                        d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(b1))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
-                    c1 = self.clothes[i].filter(regex='vest')
-                    if not c1.empty:
-                        b1 = self.clothes[i].filter(regex='coat|parka')
-                        d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(b1))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes[i][l].values.tolist()[0] +
-                                                          self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
-
-                    c1 = self.clothes[i].filter(regex='hoodie|cardigan')
-                    b1 = self.clothes['outer'].filter(regex='coat|rider|ma-1')
-                    d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(c1)) & (
-                                                   self.weather['pan']['outer2'].isin(b1))]
-                    for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes[i][l].values.tolist()[0] +
-                                                      self.clothes['outer'][m].values.tolist()[0]) / 4, (j, k, l, m)))
-                    c1 = self.clothes['outer'].filter(regex='hoodie|cardigan')
-                    b1 = self.clothes[i].filter(regex='coat|rider|ma-1')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(c1)) & (
-                                                   self.weather['pan']['outer2'].isin(b1))]
-                    for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0] +
-                                                      self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
-                    c1 = self.clothes[i].filter(regex='hoodie|cardigan')
-                    b1 = self.clothes[i].filter(regex='coat|rider|ma-1')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(c1)) & (
-                                                   self.weather['pan']['outer2'].isin(b1))]
-                    for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes[i][l].values.tolist()[0] +
-                                                      self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
-
-                    if self.sex == 'W':
-                        c1 = self.clothes[i].filter(regex='coat|parka|rider')
-                        temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                            self.weather['pan']['outer'].isin(c1))]
-                        for j, k in zip(temp['dress'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                          self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
-
-                        c1 = self.clothes[i].filter(regex='vest')
                         if not c1.empty:
-                            b1 = self.clothes['outer'].filter(regex='coat|parka|rider')
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes[i])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(b1))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes[i][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0]) / 4,
+                                                            (j, k, l, m)))
+                        c1 = self.clothes['outer'].filter(regex='hoodie|cardigan')
+                        b1 = self.clothes['outer'].filter(regex='coat|rider|ma-1')
+                        d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                            self.weather['pan']['bottom'].isin(self.clothes[i])) & (
+                                                    self.weather['pan']['outer'].isin(c1)) & (
+                                                    self.weather['pan']['outer2'].isin(b1))]
+                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes[i][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0] +
+                                                        self.clothes['outer'][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                        
+                        del [[c1]]
+                        del [[b1]]
+                        del [[d1]]
+                        del [[temp]]
+
+                    except: pass
+
+                elif i == 'color_dress':
+                    try:
+                        c1 = self.clothes['outer'].filter(regex='coat|parka|rider')
+                        temp = self.weather['pan'][
+                            (self.weather['pan']['dress'].isin(self.clothes[i])) & (self.weather['pan']['outer'].isin(c1))]
+                        for j, k in zip(temp['dress'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                        self.clothes['outer'][k].values.tolist()[0]) / 2, (j, k)))
+                        c1 = self.clothes['outer'].filter(regex='vest')
+                        b1 = self.clothes['outer'].filter(regex='coat|parka|rider')
+                        if not c1.empty:
                             temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
                                 self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
                             for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes[i][k].values.tolist()[0] +
-                                                              self.clothes['outer'][l].values.tolist()[0]) / 3,
-                                                             (j, k, l)))
-                        c1 = self.clothes['outer'].filter(regex='vest')
-                        if not c1.empty:
-                            b1 = self.clothes[i].filter(regex='coat|parka|rider')
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
-                            for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes['outer'][k].values.tolist()[0] +
-                                                              self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+                                self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                            self.clothes['outer'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        del [[c1]]
+                        del [[b1]]
+                        del [[temp]]
+
+                    except: pass
+                    
+                elif i == 'color_outer':
+                    try:
+                        c1 = self.clothes[i].filter(regex='coat|parka|rider')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                    self.weather['pan']['outer'].isin(c1))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+
                         c1 = self.clothes[i].filter(regex='vest')
                         if not c1.empty:
-                            b1 = self.clothes[i].filter(regex='coat|parka|rider')
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
-                            for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes[i][k].values.tolist()[0] +
-                                                              self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+                            b1 = self.clothes['outer'].filter(regex='coat|parka')
+                            d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(b1))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes[i][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0]) / 4,
+                                                            (j, k, l, m)))
+                        c1 = self.clothes['outer'].filter(regex='vest')
+                        if not c1.empty:
+                            b1 = self.clothes[i].filter(regex='coat|parka')
+                            d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(b1))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                        c1 = self.clothes[i].filter(regex='vest')
+                        if not c1.empty:
+                            b1 = self.clothes[i].filter(regex='coat|parka')
+                            d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(b1))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes[i][l].values.tolist()[0] +
+                                                            self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
 
-                    del [[c1]]
-                    del [[b1]]
-                    del [[d1]]
-                    del [[temp]]
+                        c1 = self.clothes[i].filter(regex='hoodie|cardigan')
+                        b1 = self.clothes['outer'].filter(regex='coat|rider|ma-1')
+                        d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                    self.weather['pan']['outer'].isin(c1)) & (
+                                                    self.weather['pan']['outer2'].isin(b1))]
+                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes[i][l].values.tolist()[0] +
+                                                        self.clothes['outer'][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                        c1 = self.clothes['outer'].filter(regex='hoodie|cardigan')
+                        b1 = self.clothes[i].filter(regex='coat|rider|ma-1')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                    self.weather['pan']['outer'].isin(c1)) & (
+                                                    self.weather['pan']['outer2'].isin(b1))]
+                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0] +
+                                                        self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                        c1 = self.clothes[i].filter(regex='hoodie|cardigan')
+                        b1 = self.clothes[i].filter(regex='coat|rider|ma-1')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                    self.weather['pan']['outer'].isin(c1)) & (
+                                                    self.weather['pan']['outer2'].isin(b1))]
+                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes[i][l].values.tolist()[0] +
+                                                        self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
+
+                        if self.sex == 'W':
+                            c1 = self.clothes[i].filter(regex='coat|parka|rider')
+                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                self.weather['pan']['outer'].isin(c1))]
+                            for j, k in zip(temp['dress'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                            self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
+
+                            c1 = self.clothes[i].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes['outer'].filter(regex='coat|parka|rider')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
+                                for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes[i][k].values.tolist()[0] +
+                                                                self.clothes['outer'][l].values.tolist()[0]) / 3,
+                                                                (j, k, l)))
+                            c1 = self.clothes['outer'].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes[i].filter(regex='coat|parka|rider')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
+                                for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes['outer'][k].values.tolist()[0] +
+                                                                self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+                            c1 = self.clothes[i].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes[i].filter(regex='coat|parka|rider')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
+                                for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes[i][k].values.tolist()[0] +
+                                                                self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+                        del [[c1]]
+                        del [[b1]]
+                        del [[d1]]
+                        del [[temp]]
+
+                    except: pass
+
                 else:
                     pass
 
         else:
             for i in colors:
                 if i == 'color_top':
-                    c1 = self.clothes['outer'].filter(regex='coat|parka')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes[i])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(c1))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    b1 = self.clothes['outer'].filter(regex='coat|parka')
-                    d1 = self.clothes[i].filter(regex='longsleeve|longshirt')
-                    if not c1.empty:
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                    try:
+                        c1 = self.clothes['outer'].filter(regex='coat|parka')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes[i])) & (
                             self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(b1))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                                    self.weather['pan']['outer'].isin(c1))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
                             self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0]) / 4,
-                                                         (j, k, l, m)))
-                    c1 = self.clothes['outer'].filter(regex='hoodie|cardigan|rider|jacket')
-                    b1 = self.clothes['outer'].filter(regex='coat|rider')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes[i])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(c1)) & (
-                                                   self.weather['pan']['outer2'].isin(b1))]
-                    for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0] +
-                                                      self.clothes['outer'][m].values.tolist()[0]) / 4, (j, k, l, m)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-
-                    if not c1.empty:
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        c1 = self.clothes['outer'].filter(regex='vest')
+                        b1 = self.clothes['outer'].filter(regex='coat|parka')
                         d1 = self.clothes[i].filter(regex='longsleeve|longshirt')
+                        if not c1.empty:
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(b1))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0]) / 4,
+                                                            (j, k, l, m)))
+                        c1 = self.clothes['outer'].filter(regex='hoodie|cardigan|rider|jacket')
+                        b1 = self.clothes['outer'].filter(regex='coat|rider')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes[i])) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                    self.weather['pan']['outer'].isin(c1)) & (
+                                                    self.weather['pan']['outer2'].isin(b1))]
+                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
+                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0] +
+                                                        self.clothes['outer'][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                        c1 = self.clothes['outer'].filter(regex='vest')
+
+                        if not c1.empty:
+                            d1 = self.clothes[i].filter(regex='longsleeve|longshirt')
+                            b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
+                            e1 = self.clothes['outer'].filter(regex='coat|parka')
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(e1)) & (
+                                                        self.weather['pan']['outer2'].isin(b1))]
+                            for j, k, l, m, n in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer'],
+                                                    temp['outer2']):
+                                self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0] +
+                                                            self.clothes['outer'][n].values.tolist()[0]) / 5,
+                                                            (j, k, l, m, n)))
+                        del [[c1]]
+                        del [[b1]]
+                        del [[d1]]
+                        del [[temp]]
+
+                    except: pass
+
+                elif i == 'color_bottom':
+                    try:
+                        c1 = self.clothes['outer'].filter(regex='coat|parka')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
+                            self.weather['pan']['bottom'].isin(self.clothes[i])) & (self.weather['pan']['outer'].isin(c1))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes[i][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        c1 = self.clothes['outer'].filter(regex='vest')
+                        b1 = self.clothes['outer'].filter(regex='coat|parka')
+                        d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                        if not c1.empty:
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes[i])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(b1))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes[i][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0]) / 4,
+                                                            (j, k, l, m)))
+                        c1 = self.clothes['outer'].filter(regex='hoodie|cardigan|rider|jacket')
+                        b1 = self.clothes['outer'].filter(regex='coat|rider')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
+                            self.weather['pan']['bottom'].isin(self.clothes[i])) & (
+                                                    self.weather['pan']['outer'].isin(c1)) & (
+                                                    self.weather['pan']['outer2'].isin(b1))]
+                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes[i][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0] +
+                                                        self.clothes['outer'][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                        c1 = self.clothes['outer'].filter(regex='vest')
+                        d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
                         b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
                         e1 = self.clothes['outer'].filter(regex='coat|parka')
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(e1)) & (
-                                                       self.weather['pan']['outer2'].isin(b1))]
-                        for j, k, l, m, n in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer'],
-                                                 temp['outer2']):
-                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0] +
-                                                          self.clothes['outer'][n].values.tolist()[0]) / 5,
-                                                         (j, k, l, m, n)))
-                    del [[c1]]
-                    del [[b1]]
-                    del [[d1]]
-                    del [[temp]]
-                elif i == 'color_bottom':
-                    c1 = self.clothes['outer'].filter(regex='coat|parka')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes[i])) & (self.weather['pan']['outer'].isin(c1))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes[i][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    b1 = self.clothes['outer'].filter(regex='coat|parka')
-                    d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                    if not c1.empty:
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes[i])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(b1))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes[i][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0]) / 4,
-                                                         (j, k, l, m)))
-                    c1 = self.clothes['outer'].filter(regex='hoodie|cardigan|rider|jacket')
-                    b1 = self.clothes['outer'].filter(regex='coat|rider')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes[i])) & (
-                                                   self.weather['pan']['outer'].isin(c1)) & (
-                                                   self.weather['pan']['outer2'].isin(b1))]
-                    for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes[i][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0] +
-                                                      self.clothes['outer'][m].values.tolist()[0]) / 4, (j, k, l, m)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                    b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
-                    e1 = self.clothes['outer'].filter(regex='coat|parka')
-                    if not c1.empty:
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes[i])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(e1)) & (
-                                                       self.weather['pan']['outer2'].isin(b1))]
-                        for j, k, l, m, n in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer'],
-                                                 temp['outer2']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes[i][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0] +
-                                                          self.clothes['outer'][n].values.tolist()[0]) / 5,
-                                                         (j, k, l, m, n)))
-                    del [[c1]]
-                    del [[b1]]
-                    del [[d1]]
-                    del [[temp]]
+                        if not c1.empty:
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes[i])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(e1)) & (
+                                                        self.weather['pan']['outer2'].isin(b1))]
+                            for j, k, l, m, n in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer'],
+                                                    temp['outer2']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes[i][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0] +
+                                                            self.clothes['outer'][n].values.tolist()[0]) / 5,
+                                                            (j, k, l, m, n)))
+                        del [[c1]]
+                        del [[b1]]
+                        del [[d1]]
+                        del [[temp]]
+
+                    except: pass
+                    
                 elif i == 'color_dress':
-                    c1 = self.clothes['outer'].filter(regex='coat|parka')
-                    temp = self.weather['pan'][
-                        (self.weather['pan']['dress'].isin(self.clothes[i])) & (self.weather['pan']['outer'].isin(c1))]
-                    for j, k in zip(temp['dress'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                      self.clothes['outer'][k].values.tolist()[0]) / 2, (j, k)))
-                    c1 = self.clothes['outer'].filter(regex='cardigan|jacket|rider')
-                    b1 = self.clothes['outer'].filter(regex='coat|parka')
-                    if not c1.empty:
-                        temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
-                            self.weather['pan']['outer'].isin(c1)) & (self.weather['pan']['outer2'].isin(b1))]
-                        for j, k, l in zip(temp['dress'], temp['outer'], temp['outer2']):
-                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                          self.clothes['outer'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    b1 = self.clothes['outer'].filter(regex='coat|parka')
-                    if not c1.empty:
-                        temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
-                            self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
-                        for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                          self.clothes['outer'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
-                    e1 = self.clothes['outer'].filter(regex='coat|parka')
-                    if not c1.empty:
-                        temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
-                            self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
-                                                       self.weather['pan']['outer2'].isin(e1))]
-                        for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
-                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
-                                                          self.clothes['outer'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0]) / 4,
-                                                         (j, k, l, m)))
-
-                    del [[c1]]
-                    del [[b1]]
-                    del [[e1]]
-                    del [[temp]]
-                elif i == 'color_outer':
-                    c1 = self.clothes[i].filter(regex='coat|parka')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(c1))]
-                    for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
-
-                    c1 = self.clothes[i].filter(regex='vest')
-                    if not c1.empty:
-                        b1 = self.clothes['outer'].filter(regex='coat|parka')
-                        d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(b1))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes[i][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0]) / 4,
-                                                         (j, k, l, m)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    if not c1.empty:
-                        b1 = self.clothes[i].filter(regex='coat|parka')
-                        d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(b1))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
-                    c1 = self.clothes[i].filter(regex='vest')
-                    if not c1.empty:
-                        b1 = self.clothes[i].filter(regex='coat|parka')
-                        d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(b1))]
-                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes[i][l].values.tolist()[0] +
-                                                          self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
-
-                    c1 = self.clothes[i].filter(regex='hoodie|cardigan|rider|jacket')
-                    b1 = self.clothes['outer'].filter(regex='coat|rider')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(c1)) & (
-                                                   self.weather['pan']['outer2'].isin(b1))]
-                    for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes[i][l].values.tolist()[0] +
-                                                      self.clothes['outer'][m].values.tolist()[0]) / 4, (j, k, l, m)))
-                    c1 = self.clothes['outer'].filter(regex='hoodie|cardigan|rider|jacket')
-                    b1 = self.clothes[i].filter(regex='coat|rider')
-                    temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
-                        self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                   self.weather['pan']['outer'].isin(c1)) & (
-                                                   self.weather['pan']['outer2'].isin(b1))]
-                    for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
-                        self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                      self.clothes['bottom'][k].values.tolist()[0] +
-                                                      self.clothes['outer'][l].values.tolist()[0] +
-                                                      self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
-
-                    c1 = self.clothes[i].filter(regex='vest')
-                    d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                    b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
-                    e1 = self.clothes['outer'].filter(regex='coat|parka')
-                    if not c1.empty:
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(e1)) & (
-                                                       self.weather['pan']['outer2'].isin(b1))]
-                        for j, k, l, m, n in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer'],
-                                                 temp['outer2']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes[i][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0] +
-                                                          self.clothes['outer'][n].values.tolist()[0]) / 5,
-                                                         (j, k, l, m, n)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                    b1 = self.clothes[i].filter(regex='cardigan|jacket')
-                    e1 = self.clothes['outer'].filter(regex='coat|parka')
-                    if not c1.empty:
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(e1)) & (
-                                                       self.weather['pan']['outer2'].isin(b1))]
-                        for j, k, l, m, n in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer'],
-                                                 temp['outer2']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes['outer'][m].values.tolist()[0] +
-                                                          self.clothes[i][n].values.tolist()[0]) / 5, (j, k, l, m, n)))
-                    c1 = self.clothes['outer'].filter(regex='vest')
-                    d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
-                    b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
-                    e1 = self.clothes[i].filter(regex='coat|parka')
-                    if not c1.empty:
-                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
-                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
-                                                       self.weather['pan']['vest'].isin(c1)) & (
-                                                       self.weather['pan']['outer'].isin(e1)) & (
-                                                       self.weather['pan']['outer2'].isin(b1))]
-                        for j, k, l, m, n in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer'],
-                                                 temp['outer2']):
-                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
-                                                          self.clothes['bottom'][k].values.tolist()[0] +
-                                                          self.clothes['outer'][l].values.tolist()[0] +
-                                                          self.clothes[i][m].values.tolist()[0] +
-                                                          self.clothes['outer'][n].values.tolist()[0]) / 5,
-                                                         (j, k, l, m, n)))
-
-                    if self.sex == 'W':
-                        c1 = self.clothes[i].filter(regex='coat|parka')
-                        temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                            self.weather['pan']['outer'].isin(c1))]
+                    try:
+                        c1 = self.clothes['outer'].filter(regex='coat|parka')
+                        temp = self.weather['pan'][
+                            (self.weather['pan']['dress'].isin(self.clothes[i])) & (self.weather['pan']['outer'].isin(c1))]
                         for j, k in zip(temp['dress'], temp['outer']):
-                            self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                          self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
-                        c1 = self.clothes[i].filter(regex='cardigan|jacket|rider')
+                            self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                        self.clothes['outer'][k].values.tolist()[0]) / 2, (j, k)))
+                        c1 = self.clothes['outer'].filter(regex='cardigan|jacket|rider')
                         b1 = self.clothes['outer'].filter(regex='coat|parka')
                         if not c1.empty:
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
                                 self.weather['pan']['outer'].isin(c1)) & (self.weather['pan']['outer2'].isin(b1))]
                             for j, k, l in zip(temp['dress'], temp['outer'], temp['outer2']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes[i][k].values.tolist()[0] +
-                                                              self.clothes['outer'][l].values.tolist()[0]) / 3,
-                                                             (j, k, l)))
-                        c1 = self.clothes['outer'].filter(regex='cardigan|jacket|rider')
-                        b1 = self.clothes[i].filter(regex='coat|parka')
+                                self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                            self.clothes['outer'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        c1 = self.clothes['outer'].filter(regex='vest')
+                        b1 = self.clothes['outer'].filter(regex='coat|parka')
                         if not c1.empty:
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['outer'].isin(c1)) & (self.weather['pan']['outer2'].isin(b1))]
-                            for j, k, l in zip(temp['dress'], temp['outer'], temp['outer2']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes['outer'][k].values.tolist()[0] +
-                                                              self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
+                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
+                            for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                            self.clothes['outer'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0]) / 3, (j, k, l)))
+                        c1 = self.clothes['outer'].filter(regex='vest')
+                        b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
+                        e1 = self.clothes['outer'].filter(regex='coat|parka')
+                        if not c1.empty:
+                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes[i])) & (
+                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
+                                                        self.weather['pan']['outer2'].isin(e1))]
+                            for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
+                                self.complete_outfit.append(((self.clothes[i][j].values.tolist()[0] +
+                                                            self.clothes['outer'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0]) / 4,
+                                                            (j, k, l, m)))
+                        del [[c1]]
+                        del [[b1]]
+                        del [[e1]]
+                        del [[temp]]
+                    except: pass
+                    
+                elif i == 'color_outer':
+                    try:
+                        c1 = self.clothes[i].filter(regex='coat|parka')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                    self.weather['pan']['outer'].isin(c1))]
+                        for j, k, l in zip(temp['top'], temp['bottom'], temp['outer']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
 
                         c1 = self.clothes[i].filter(regex='vest')
                         if not c1.empty:
                             b1 = self.clothes['outer'].filter(regex='coat|parka')
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
-                            for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes[i][k].values.tolist()[0] +
-                                                              self.clothes['outer'][l].values.tolist()[0]) / 3,
-                                                             (j, k, l)))
+                            d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(b1))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes[i][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0]) / 4,
+                                                            (j, k, l, m)))
                         c1 = self.clothes['outer'].filter(regex='vest')
                         if not c1.empty:
                             b1 = self.clothes[i].filter(regex='coat|parka')
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
-                            for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes['outer'][k].values.tolist()[0] +
-                                                              self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+                            d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(b1))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                        c1 = self.clothes[i].filter(regex='vest')
+                        if not c1.empty:
+                            b1 = self.clothes[i].filter(regex='coat|parka')
+                            d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(b1))]
+                            for j, k, l, m in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes[i][l].values.tolist()[0] +
+                                                            self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
+
+                        c1 = self.clothes[i].filter(regex='hoodie|cardigan|rider|jacket')
+                        b1 = self.clothes['outer'].filter(regex='coat|rider')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                    self.weather['pan']['outer'].isin(c1)) & (
+                                                    self.weather['pan']['outer2'].isin(b1))]
+                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes[i][l].values.tolist()[0] +
+                                                        self.clothes['outer'][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                        c1 = self.clothes['outer'].filter(regex='hoodie|cardigan|rider|jacket')
+                        b1 = self.clothes[i].filter(regex='coat|rider')
+                        temp = self.weather['pan'][(self.weather['pan']['top'].isin(self.clothes['top'])) & (
+                            self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                    self.weather['pan']['outer'].isin(c1)) & (
+                                                    self.weather['pan']['outer2'].isin(b1))]
+                        for j, k, l, m in zip(temp['top'], temp['bottom'], temp['outer'], temp['outer2']):
+                            self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                        self.clothes['bottom'][k].values.tolist()[0] +
+                                                        self.clothes['outer'][l].values.tolist()[0] +
+                                                        self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
 
                         c1 = self.clothes[i].filter(regex='vest')
+                        d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                        b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
+                        e1 = self.clothes['outer'].filter(regex='coat|parka')
                         if not c1.empty:
-                            b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
-                            e1 = self.clothes['outer'].filter(regex='coat|parka')
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
-                                                           self.weather['pan']['outer2'].isin(e1))]
-                            for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes[i][k].values.tolist()[0] +
-                                                              self.clothes['outer'][l].values.tolist()[0] +
-                                                              self.clothes['outer'][m].values.tolist()[0]) / 4,
-                                                             (j, k, l, m)))
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(e1)) & (
+                                                        self.weather['pan']['outer2'].isin(b1))]
+                            for j, k, l, m, n in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer'],
+                                                    temp['outer2']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes[i][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0] +
+                                                            self.clothes['outer'][n].values.tolist()[0]) / 5,
+                                                            (j, k, l, m, n)))
                         c1 = self.clothes['outer'].filter(regex='vest')
+                        d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                        b1 = self.clothes[i].filter(regex='cardigan|jacket')
+                        e1 = self.clothes['outer'].filter(regex='coat|parka')
                         if not c1.empty:
-                            b1 = self.clothes[i].filter(regex='cardigan|jacket')
-                            e1 = self.clothes['outer'].filter(regex='coat|parka')
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
-                                                           self.weather['pan']['outer2'].isin(e1))]
-                            for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes['outer'][k].values.tolist()[0] +
-                                                              self.clothes[i][l].values.tolist()[0] +
-                                                              self.clothes['outer'][m].values.tolist()[0]) / 4,
-                                                             (j, k, l, m)))
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(e1)) & (
+                                                        self.weather['pan']['outer2'].isin(b1))]
+                            for j, k, l, m, n in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer'],
+                                                    temp['outer2']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes['outer'][m].values.tolist()[0] +
+                                                            self.clothes[i][n].values.tolist()[0]) / 5, (j, k, l, m, n)))
                         c1 = self.clothes['outer'].filter(regex='vest')
+                        d1 = self.clothes['top'].filter(regex='longsleeve|longshirt')
+                        b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
+                        e1 = self.clothes[i].filter(regex='coat|parka')
                         if not c1.empty:
-                            b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
-                            e1 = self.clothes[i].filter(regex='coat|parka')
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
-                                                           self.weather['pan']['outer2'].isin(e1))]
-                            for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes['outer'][k].values.tolist()[0] +
-                                                              self.clothes['outer'][l].values.tolist()[0] +
-                                                              self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
-                        c1 = self.clothes[i].filter(regex='vest')
-                        if not c1.empty:
-                            b1 = self.clothes[i].filter(regex='cardigan|jacket')
-                            e1 = self.clothes['outer'].filter(regex='coat|parka')
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
-                                                           self.weather['pan']['outer2'].isin(e1))]
-                            for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes[i][k].values.tolist()[0] +
-                                                              self.clothes[i][l].values.tolist()[0] +
-                                                              self.clothes['outer'][m].values.tolist()[0]) / 4,
-                                                             (j, k, l, m)))
-                        c1 = self.clothes[i].filter(regex='vest')
-                        if not c1.empty:
-                            b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
-                            e1 = self.clothes[i].filter(regex='coat|parka')
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
-                                                           self.weather['pan']['outer2'].isin(e1))]
-                            for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes[i][k].values.tolist()[0] +
-                                                              self.clothes['outer'][l].values.tolist()[0] +
-                                                              self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
-                        c1 = self.clothes['outer'].filter(regex='vest')
-                        if not c1.empty:
-                            b1 = self.clothes[i].filter(regex='cardigan|jacket')
-                            e1 = self.clothes[i].filter(regex='coat|parka')
-                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
-                                self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
-                                                           self.weather['pan']['outer2'].isin(e1))]
-                            for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
-                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
-                                                              self.clothes['outer'][k].values.tolist()[0] +
-                                                              self.clothes[i][l].values.tolist()[0] +
-                                                              self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                            temp = self.weather['pan'][(self.weather['pan']['top'].isin(d1)) & (
+                                self.weather['pan']['bottom'].isin(self.clothes['bottom'])) & (
+                                                        self.weather['pan']['vest'].isin(c1)) & (
+                                                        self.weather['pan']['outer'].isin(e1)) & (
+                                                        self.weather['pan']['outer2'].isin(b1))]
+                            for j, k, l, m, n in zip(temp['top'], temp['bottom'], temp['vest'], temp['outer'],
+                                                    temp['outer2']):
+                                self.complete_outfit.append(((self.clothes['top'][j].values.tolist()[0] +
+                                                            self.clothes['bottom'][k].values.tolist()[0] +
+                                                            self.clothes['outer'][l].values.tolist()[0] +
+                                                            self.clothes[i][m].values.tolist()[0] +
+                                                            self.clothes['outer'][n].values.tolist()[0]) / 5,
+                                                            (j, k, l, m, n)))
 
-                    del [[c1]]
-                    del [[b1]]
-                    del [[d1]]
-                    del [[e1]]
-                    del [[temp]]
+                        if self.sex == 'W':
+                            c1 = self.clothes[i].filter(regex='coat|parka')
+                            temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                self.weather['pan']['outer'].isin(c1))]
+                            for j, k in zip(temp['dress'], temp['outer']):
+                                self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                            self.clothes[i][k].values.tolist()[0]) / 2, (j, k)))
+                            c1 = self.clothes[i].filter(regex='cardigan|jacket|rider')
+                            b1 = self.clothes['outer'].filter(regex='coat|parka')
+                            if not c1.empty:
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['outer'].isin(c1)) & (self.weather['pan']['outer2'].isin(b1))]
+                                for j, k, l in zip(temp['dress'], temp['outer'], temp['outer2']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes[i][k].values.tolist()[0] +
+                                                                self.clothes['outer'][l].values.tolist()[0]) / 3,
+                                                                (j, k, l)))
+                            c1 = self.clothes['outer'].filter(regex='cardigan|jacket|rider')
+                            b1 = self.clothes[i].filter(regex='coat|parka')
+                            if not c1.empty:
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['outer'].isin(c1)) & (self.weather['pan']['outer2'].isin(b1))]
+                                for j, k, l in zip(temp['dress'], temp['outer'], temp['outer2']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes['outer'][k].values.tolist()[0] +
+                                                                self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+
+                            c1 = self.clothes[i].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes['outer'].filter(regex='coat|parka')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
+                                for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes[i][k].values.tolist()[0] +
+                                                                self.clothes['outer'][l].values.tolist()[0]) / 3,
+                                                                (j, k, l)))
+                            c1 = self.clothes['outer'].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes[i].filter(regex='coat|parka')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1))]
+                                for j, k, l in zip(temp['dress'], temp['vest'], temp['outer']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes['outer'][k].values.tolist()[0] +
+                                                                self.clothes[i][l].values.tolist()[0]) / 3, (j, k, l)))
+
+                            c1 = self.clothes[i].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
+                                e1 = self.clothes['outer'].filter(regex='coat|parka')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
+                                                            self.weather['pan']['outer2'].isin(e1))]
+                                for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes[i][k].values.tolist()[0] +
+                                                                self.clothes['outer'][l].values.tolist()[0] +
+                                                                self.clothes['outer'][m].values.tolist()[0]) / 4,
+                                                                (j, k, l, m)))
+                            c1 = self.clothes['outer'].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes[i].filter(regex='cardigan|jacket')
+                                e1 = self.clothes['outer'].filter(regex='coat|parka')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
+                                                            self.weather['pan']['outer2'].isin(e1))]
+                                for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes['outer'][k].values.tolist()[0] +
+                                                                self.clothes[i][l].values.tolist()[0] +
+                                                                self.clothes['outer'][m].values.tolist()[0]) / 4,
+                                                                (j, k, l, m)))
+                            c1 = self.clothes['outer'].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
+                                e1 = self.clothes[i].filter(regex='coat|parka')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
+                                                            self.weather['pan']['outer2'].isin(e1))]
+                                for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes['outer'][k].values.tolist()[0] +
+                                                                self.clothes['outer'][l].values.tolist()[0] +
+                                                                self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                            c1 = self.clothes[i].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes[i].filter(regex='cardigan|jacket')
+                                e1 = self.clothes['outer'].filter(regex='coat|parka')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
+                                                            self.weather['pan']['outer2'].isin(e1))]
+                                for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes[i][k].values.tolist()[0] +
+                                                                self.clothes[i][l].values.tolist()[0] +
+                                                                self.clothes['outer'][m].values.tolist()[0]) / 4,
+                                                                (j, k, l, m)))
+                            c1 = self.clothes[i].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes['outer'].filter(regex='cardigan|jacket')
+                                e1 = self.clothes[i].filter(regex='coat|parka')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
+                                                            self.weather['pan']['outer2'].isin(e1))]
+                                for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes[i][k].values.tolist()[0] +
+                                                                self.clothes['outer'][l].values.tolist()[0] +
+                                                                self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                            c1 = self.clothes['outer'].filter(regex='vest')
+                            if not c1.empty:
+                                b1 = self.clothes[i].filter(regex='cardigan|jacket')
+                                e1 = self.clothes[i].filter(regex='coat|parka')
+                                temp = self.weather['pan'][(self.weather['pan']['dress'].isin(self.clothes['dress'])) & (
+                                    self.weather['pan']['vest'].isin(c1)) & (self.weather['pan']['outer'].isin(b1)) & (
+                                                            self.weather['pan']['outer2'].isin(e1))]
+                                for j, k, l, m in zip(temp['dress'], temp['vest'], temp['outer'], temp['outer2']):
+                                    self.complete_outfit.append(((self.clothes['dress'][j].values.tolist()[0] +
+                                                                self.clothes['outer'][k].values.tolist()[0] +
+                                                                self.clothes[i][l].values.tolist()[0] +
+                                                                self.clothes[i][m].values.tolist()[0]) / 4, (j, k, l, m)))
+                        del [[c1]]
+                        del [[b1]]
+                        del [[d1]]
+                        del [[e1]]
+                        del [[temp]]
+
+                    except: pass
+                    
                 else:
                     pass
         temp = list(set(self.complete_outfit))

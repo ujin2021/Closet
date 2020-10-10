@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from datetime import datetime
 now = datetime.now()
 
-media_url = '13.124.208.47:8000/media/'
+media_url = 'http://13.124.208.47:8000/media/'
 
 # https://gist.github.com/ujin2021/94df639614dbecff24325787185481df -> 옷 category 
 class ClothesRecommendation(ListView) :
@@ -26,11 +26,11 @@ class ClothesRecommendation(ListView) :
             user_id = request.user.id
             print('request user id : ', user_id)
 
-            hashtag = request.POST.get('hashtag', '')
+            style = request.POST.get('style', '') # style
             color = request.POST.get('color', '') 
             weather = int(request.POST.get('weather', ''))
             sex = Account.objects.filter(id=user_id).values('sex')[0]['sex']
-            print(f'hashtag : {hashtag}, color : {color}, weather : {weather}, sex : {sex}')
+            print(f'style : {style}, color : {color}, weather : {weather}, sex : {sex}')
 
             if(weather >= 27) :
                 weather_clothes = LEVEL[7]
@@ -75,8 +75,8 @@ class ClothesRecommendation(ListView) :
                         tmp.append(f'{clo[0].color}_{clo[0].pattern}_{clo[0].category}')
                 delete.append(tuple(tmp))
             
-            print({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : sex, 'hashtag' : hashtag, 'weather' : weather, 'delete' : delete})
-            result = Rd({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : sex, 'hashtag' : hashtag, 'weather' : weather, 'delete' : delete})
+            print({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : sex, 'style' : style, 'weather' : weather, 'delete' : delete})
+            result = Rd({'filtering' : filtering, 'filtering_freq' : filtering_freq, 'sex' : sex, 'style' : style, 'weather' : weather, 'delete' : delete})
             result.result_similarity()
             recom_result = result.outfit() # result
 
@@ -161,6 +161,10 @@ class SelectOne(ListView) :
             for clothes in clothes_obj :
                 clo_id = clothes['id']
                 clo_cate = clothes['category']
+                clo = User_Closet.objects.get(clothes_id=clo_id) # User_Closet 에 선택된 세트의 frequency +1
+                clo.frequency += 1
+                clo.save()
+
                 if(CATEGORY[clo_cate] == 'top') :
                     top_id = clo_id
                 elif(CATEGORY[clo_cate] == 'bottom') :
@@ -174,6 +178,7 @@ class SelectOne(ListView) :
                         outer2_id = clo_id
                     else :
                         outer_id = clo_id
+                        
             result = Frequency_Fashion(user_id=user_id, top_id=top_id, bottom_id=bottom_id, outer_id=outer_id, outer2_id=outer2_id, dress_id=dress_id, neat_id=neat_id)
             result.save()
             return JsonResponse({'msg' : 'data store success'}, status = 200)

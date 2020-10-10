@@ -12,7 +12,7 @@ class ClothesFrequency(ListView) :
             user_id = request.user.id
             print('request user id : ', user_id)
             freq_image = {'top' : [], 'bottom' : [], 'outer' : [], 'dress' : []}
-            media_url = '13.124.208.47:8000/media/'
+            media_url = 'http://13.124.208.47:8000/media/'
 
             result = User_Closet.objects.select_related('clothes').filter(user_id=user_id).values('frequency', 'clothes__category', 'clothes__image')
             print('result : ', result)
