@@ -133,8 +133,8 @@ class Recommendation:
         for i in self.clothes.keys():
             result = dict()
             for j in self.clothes[i].columns.tolist():
-                result[j] = (0.4 * self.clothes[i][j][8]) + (
-                            0.6 * self.cos_similarity(np.array(self.clothes[i][j].tolist()[:-1]), self.hashtag))
+                # print(self.clothes[i][j])
+                result[j] = (0.4 * self.clothes[i][j][8]) + (0.6 * self.cos_similarity(np.array(self.clothes[i][j].tolist()[:-1]), self.hashtag))
             self.clothes[i] = self.clothes[i].append(result, ignore_index=True)
             # print(self.clothes[i])
             if self.sex == 'W':
@@ -1200,4 +1200,8 @@ class Recommendation:
                 if set(k[1]) == set(m): self.complete_outfit.remove(k)
 
         self.complete_outfit = sorted(self.complete_outfit, key=lambda x: x[0], reverse=True)
-        return [i[1] for i in self.complete_outfit[:3]]
+        sample_result = [i[1] for i in self.complete_outfit[:3]]
+
+        if set(sample_result[2][1]).intersection(set(sample_result[0][1]).intersection(sample_result[1][1])):
+            sample_result.insert(2, self.complete_outfit[4][1])
+        return sample_result[:3]
