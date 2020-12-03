@@ -38,7 +38,7 @@ class ClothesInfo(ListView):
 
             if(len(class_arr) < 3 or len(class_arr) > 4) : # 분류한 결과가 잘못 왔을 떄
                 print('[error]Wrong classify result')
-                return JsonResponse({'msg': 'wrong classify result'}, status=400)
+                return '[error]Wrong classify result'
 
             elif(len(class_arr) == 3): # 처음 등록
                 image = request.FILES.get('image') # image file name
@@ -63,7 +63,7 @@ class ClothesInfo(ListView):
 
                 if(len(clothes) == 0) : # 등록된 옷이 아님
                     print('[error]After Register Clothes, then Check status')
-                    return JsonResponse({'msg': '[error]You should register first'}, status=400)
+                    return '[error]You should register first'
 
                 clothes_list = list(map(lambda x : x.id, clothes)) # clothes_category 에서 분류와 일치하는 옷의 id list
                 print(clothes_list)
