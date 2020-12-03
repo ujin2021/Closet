@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from datetime import datetime
 now = datetime.now()
 
+# 옷 등록 / 옷 상태 체크
 class ClothesInfo(ListView):
     def get(self, request):
         try :
@@ -22,6 +23,7 @@ class ClothesInfo(ListView):
 
     @LoginConfirm
     def post(self,request):
+        sid = transaction.savepoint()
         try : 
             user_id = request.user.id
             print("request user id: ", user_id)
@@ -34,7 +36,11 @@ class ClothesInfo(ListView):
             pattern = class_arr[1]
             category = class_arr[2]
 
-            if(len(class_arr) == 3): # 처음 등록
+            if(len(class_arr) < 3 or len(class_arr) > 4) : # 분류한 결과가 잘못 왔을 떄
+                print('[error]Wrong classify result')
+                return JsonResponse({'msg': 'wrong classify result'}, status=400)
+
+            elif(len(class_arr) == 3): # 처음 등록
                 image = request.FILES.get('image') # image file name
                 nowDate = now.strftime('%Y/%m/%d') # for media dir path
                 image_path = nowDate+'/'+str(image) # image 저장 경로가 yy/mm/dd/[image_name]
@@ -42,7 +48,7 @@ class ClothesInfo(ListView):
                 
                 form = Clothes_category(image=image, color=color, pattern=pattern, category=category)
                 form.save() # clothes_category db에 clothes info 저장
-                print("save complete")
+                print(f"{classify} save complete")
             
                 clothes = Clothes_category.objects.get(image=image_path) # 방금 저장한 옷의 row 가져오기
                 print("clothes row id : ", clothes.id) # 해당 옷의 id
@@ -51,9 +57,14 @@ class ClothesInfo(ListView):
 
                 return JsonResponse({'msg': 'save ok'}, status=201)
 
-            if(len(class_arr) == 4): # IN/OUT update
+            elif(len(class_arr) == 4): # IN/OUT update
                 clothes = Clothes_category.objects.filter(color=color, pattern=pattern, category=category) # 옷장 camera가 옷을 분석한 결과와 일치하는 옷 찾기
                 print('clothes id : ', clothes, ' leng : ', len(clothes))
+
+                if(len(clothes) == 0) : # 등록된 옷이 아님
+                    print('[error]After Register Clothes, then Check status')
+                    return JsonResponse({'msg': '[error]You should register first'}, status=400)
+
                 clothes_list = list(map(lambda x : x.id, clothes)) # clothes_category 에서 분류와 일치하는 옷의 id list
                 print(clothes_list)
                 
@@ -63,12 +74,13 @@ class ClothesInfo(ListView):
                         print('result[0] : ', result[0])
                         break
 
-                print('result id: ', result[0].id) # user_closet 의 id
-                print('clothes id : ', result[0].clothes_id)
+                if(len(result) == 0) :
+                    print('[error]This clothes are not users') # 옷은 등록되었지만 현재 회원이 가진 옷이 아님
+                    return JsonResponse({'msg': 'This clothes are not yours'}, status=200)
 
-                status = class_arr[3]
-                print('status : ', status)
-                
+                status = class_arr[3] # IN/OUT
+                print(f'result id:  {result[0].id}, clothes id : {result[0].clothes_id}, status : {status}') # user_closet 의 id
+
                 clothes = Clothes_category.objects.get(id = result[0].clothes_id) # 해당 옷 status update위해 obj 가져옴
                 
                 sid = transaction.savepoint()

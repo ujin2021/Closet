@@ -1,7 +1,7 @@
 import socket
 #from .models import RaspberryPi
 token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoyfQ.mP_IOdB4LEsJIeeUVaxLpG0k4NlnMesaMhU13J6gQ8M'
-ip = '220.67.124.185'
+ip = '220.67.124.66'
 # ip ='192.168.1.49'
 port = 30000
 def sendToken(token, ip, port) :

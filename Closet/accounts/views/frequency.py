@@ -5,6 +5,7 @@ from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
 from django.utils.decorators import method_decorator
 
+# 자주 입은 옷 카테고리별 top3 app으로 전송(image url)
 class ClothesFrequency(ListView) :
     @LoginConfirm
     def get(self, request) :

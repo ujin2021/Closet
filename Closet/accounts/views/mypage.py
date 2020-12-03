@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from datetime import datetime
 now = datetime.now()
 
+# 회원 정보 app으로 전송
 class Mypage(ListView):
     @LoginConfirm
     def get(self, request):

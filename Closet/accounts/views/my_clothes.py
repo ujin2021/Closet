@@ -5,6 +5,7 @@ from django.views.generic import ListView
 from django.http import HttpResponse, JsonResponse
 from django.utils.decorators import method_decorator
 
+# 사용자의 모든 옷 app으로 전송(image url)
 class MyClothes(ListView) :
     @LoginConfirm
     def post(self, request) :
